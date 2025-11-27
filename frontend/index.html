@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker - AWS Serverless Application</title>
+    <meta name="description" content="A serverless task management application built with AWS services">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Loading...</p>
+    </div>
+
+    <div class="container">
+        <!-- Authentication Section -->
+        <div id="auth-section" class="auth-section">
+            <h1>📋 Task Tracker</h1>
+            <p class="subtitle">Manage your tasks efficiently</p>
+            
+            <div class="auth-forms">
+                <!-- Login Form -->
+                <div id="login-form" class="form-container active">
+                    <h2>Login</h2>
+                    <form id="login">
+                        <div class="input-group">
+                            <label for="login-email">Email Address</label>
+                            <input type="email" id="login-email" placeholder="your.email@example.com" required autocomplete="email">
+                        </div>
+                        <div class="input-group">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <span class="btn-text">Login</span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                            </span>
+                        </button>
+                    </form>
+                    <p class="form-switch">Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
+                </div>
+                
+                <!-- Signup Form -->
+                <div id="signup-form" class="form-container">
+                    <h2>Create Account</h2>
+                    <form id="signup">
+                        <div class="input-group">
+                            <label for="signup-name">Full Name</label>
+                            <input type="text" id="signup-name" placeholder="John Doe" required autocomplete="name">
+                        </div>
+                        <div class="input-group">
+                            <label for="signup-email">Email Address</label>
+                            <input type="email" id="signup-email" placeholder="your.email@example.com" required autocomplete="email">
+                        </div>
+                        <div class="input-group">
+                            <label for="signup-password">Password</label>
+                            <input type="password" id="signup-password" placeholder="Min 8 characters" required autocomplete="new-password">
+                            <small class="input-help">Must be at least 8 characters</small>
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <span class="btn-text">Create Account</span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                            </span>
+                        </button>
+                    </form>
+                    <p class="form-switch">Already have an account? <a href="#" id="show-login">Login</a></p>
+                </div>
+                
+                <!-- Verification Form -->
+                <div id="verify-form" class="form-container">
+                    <h2>Verify Your Email</h2>
+                    <p class="verify-instructions">We've sent a verification code to your email address. Please enter it below.</p>
+                    <form id="verify">
+                        <div class="input-group">
+                            <label for="verify-code">Verification Code</label>
+                            <input type="text" id="verify-code" placeholder="Enter 6-digit code" required pattern="[0-9]{6}" maxlength="6">
+                        </div>
+                        <button type="submit" class="btn-primary">
+                            <span class="btn-text">Verify Email</span>
+                            <span class="btn-loader" style="display: none;">
+                                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                            </span>
+                        </button>
+                    </form>
+                    <p class="form-switch"><a href="#" id="resend-code">Resend code</a></p>
+                </div>
+            </div>
+            
+            <div id="auth-message" class="message"></div>
+        </div>
+
+        <!-- Tasks Section -->
+        <div id="tasks-section" class="tasks-section" style="display: none;">
+            <div class="header">
+                <div class="header-left">
+                    <h1>📝 My Tasks</h1>
+                    <p class="task-count">Loading tasks...</p>
+                </div>
+                <div class="user-info">
+                    <span class="user-name" id="user-name"></span>
+                    <span class="user-email" id="user-email"></span>
+                    <button id="logout-btn" class="logout-btn">Logout</button>
+                </div>
+            </div>
+
+            <!-- Filter and Sort -->
+            <div class="controls-section">
+                <div class="filter-controls">
+                    <button class="filter-btn active" data-filter="all">All Tasks</button>
+                    <button class="filter-btn" data-filter="pending">Pending</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+                <div class="sort-controls">
+                    <select id="sort-select" class="sort-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name">Name (A-Z)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Add Task Form -->
+            <div class="add-task-section">
+                <h3>✨ Add New Task</h3>
+                <form id="add-task-form">
+                    <div class="form-row">
+                        <div class="input-group flex-grow">
+                            <label for="task-name">Task Name *</label>
+                            <input type="text" id="task-name" placeholder="e.g., Complete project documentation" required maxlength="100">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group flex-grow">
+                            <label for="task-description">Description</label>
+                            <textarea id="task-description" placeholder="Add more details about this task..." rows="3" maxlength="500"></textarea>
+                            <small class="char-count"><span id="desc-char-count">0</span>/500</small>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        <span class="btn-text">➕ Add Task</span>
+                        <span class="btn-loader" style="display: none;">
+                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </span>
+                    </button>
+                </form>
+            </div>
+
+            <div id="task-message" class="message"></div>
+
+            <!-- Tasks List -->
+            <div class="tasks-container">
+                <div class="tasks-header">
+                    <h3>Your Tasks</h3>
+                    <button id="refresh-tasks" class="btn-icon" title="Refresh tasks">
+                        <span class="refresh-icon">🔄</span>
+                    </button>
+                </div>
+                
+                <div id="tasks-list" class="tasks-list"></div>
+                
+                <div id="no-tasks" class="no-tasks" style="display: none;">
+                    <div class="empty-state">
+                        <span class="empty-icon">📋</span>
+                        <h3>No tasks found</h3>
+                        <p>Create your first task above to get started!</p>
+                    </div>
+                </div>
+                
+                <div id="tasks-loading" class="tasks-loading" style="display: none;">
+                    <div class="spinner-small"></div>
+                    <p>Loading tasks...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2024 Task Tracker | Simple & Efficient Task Management</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.6/dist/amazon-cognito-identity.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
