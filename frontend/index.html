@@ -1,118 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Serverless App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px 20px;
-            background-color: #f5f5f5;
-        }
-        h1 {
-            font-size: 2rem;
-        }
-        button {
-            padding: 12px 25px;
-            margin: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #0073bb;
-            color: white;
-            transition: background 0.3s;
-        }
-        button:hover {
-            background-color: #005f99;
-        }
-        pre {
-            text-align: left;
-            margin: 20px auto;
-            padding: 15px;
-            width: 90%;
-            max-width: 600px;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            overflow-x: auto;
-        }
-        #nextPage {
-            display: none;
-        }
-        @media (max-width: 600px) {
-            body {
-                padding: 30px 10px;
-            }
-            button {
-                width: 90%;
-            }
-        }
-    </style>
+    <title>Task Tracker Login</title>
 </head>
 <body>
-    <h1>Welcome to My Serverless App</h1>
-    <p>Login to access your app features</p>
-
-    <div id="buttons">
-        <button id="loginBtn">Login with Cognito</button>
-        <button id="logoutBtn" style="display:none;">Logout</button>
-        <button id="nextPage" onclick="goNext()">Go to Next Page</button>
-    </div>
-
-    <div id="tokenDisplay"></div>
+    <h2>Task Tracker Login</h2>
+    <button onclick="login()">Login with Cognito</button>
 
     <script>
-        const redirectUri = "http://my-task-tracker-frontend.s3-website-us-east-1.amazonaws.com/";
-        const domain = "https://us-east-1skhielm7h.auth.us-east-1.amazoncognito.com";
-        const clientId = "52di8mn56ifnrt3htpd7ep66m";
-
-        const loginBtn = document.getElementById("loginBtn");
-        const logoutBtn = document.getElementById("logoutBtn");
-        const nextPageBtn = document.getElementById("nextPage");
-        const tokenDisplay = document.getElementById("tokenDisplay");
-
         function login() {
-            const loginUrl = `${domain}/login?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`;
-            window.location.href = loginUrl;
+            // Change these with your Cognito info
+            const clientId = 'YOUR_COGNITO_APP_CLIENT_ID';
+            const domain = 'YOUR_COGNITO_DOMAIN';
+            const redirectUri = 'http://YOUR_S3_WEBSITE_URL';
+            
+            const url = `https://${domain}.auth.us-east-1.amazoncognito.com/login?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`;
+            window.location.href = url;
         }
-
-        function logout() {
-            const logoutUrl = `${domain}/logout?client_id=${clientId}&logout_uri=${redirectUri}`;
-            window.location.href = logoutUrl;
-        }
-
-        function goNext() {
-            window.location.href = "next.html"; // Change this to your next page
-        }
-
-        // On page load, check for tokens in URL hash
-        window.onload = function() {
-            const hash = window.location.hash.substring(1);
-            if (hash) {
-                const params = new URLSearchParams(hash);
-                const accessToken = params.get("access_token");
-                const idToken = params.get("id_token");
-                const expiresIn = params.get("expires_in");
-
-                if (accessToken) {
-                    loginBtn.style.display = "none";
-                    logoutBtn.style.display = "inline-block";
-                    nextPageBtn.style.display = "inline-block";
-
-                    tokenDisplay.innerHTML = `
-                        <h3>Login Successful!</h3>
-                        <pre>Access Token: ${accessToken}</pre>
-                        <pre>ID Token: ${idToken}</pre>
-                        <pre>Expires in: ${expiresIn} seconds</pre>
-                    `;
-                }
-            }
-        };
-
-        loginBtn.addEventListener("click", login);
-        logoutBtn.addEventListener("click", logout);
     </script>
 </body>
 </html>
