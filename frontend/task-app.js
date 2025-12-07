@@ -4,7 +4,7 @@
 const AWS_CONFIG = {
     region: 'us-east-1',
     userPoolId: 'us-east-1_sKHiELm7h',
-    clientId: '52di8mn56ifnrt3htpd7ep66m',
+    clientId: '1eaqnsia4uh2fntfch81mva5t2',
     apiEndpoint: 'https://your-api-id.execute-api.us-east-1.amazonaws.com/prod' // UPDATE THIS
 };
 
