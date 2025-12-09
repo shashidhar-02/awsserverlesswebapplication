@@ -1,22 +1,145 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Task Tracker Login</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Tracker</title>
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;background:#f4f6fb;margin:0}
+    .wrap{max-width:780px;margin:40px auto;padding:18px}
+    .card{background:#fff;padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)}
+    header{display:flex;justify-content:space-between;align-items:center}
+    h1{margin:0}
+    .btn{background:#1f6feb;color:#fff;border:0;padding:10px 14px;border-radius:8px;cursor:pointer}
+    #taskForm{display:flex;gap:8px;margin-top:12px}
+    input{flex:1;padding:8px;border-radius:6px;border:1px solid #e6e9f0}
+    ul{padding-left:0;list-style:none}
+    li{padding:8px 0;border-bottom:1px solid #f1f3f8}
+    .muted{color:#6b7280;font-size:14px}
+  </style>
 </head>
 <body>
-    <h2>Task Tracker Login</h2>
-    <button onclick="login()">Login with Cognito</button>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>Task Tracker</h1>
+        <div id="authButtons">
+          <button id="loginBtn" class="btn">Login</button>
+          <button id="logoutBtn" class="btn" style="display:none;background:#6b7280">Logout</button>
+        </div>
+      </header>
 
-    <script>
-        function login() {
-            // Change these with your Cognito info
-            const clientId = 'YOUR_COGNITO_APP_CLIENT_ID';
-            const domain = 'YOUR_COGNITO_DOMAIN';
-            const redirectUri = 'http://YOUR_S3_WEBSITE_URL';
-            
-            const url = `https://${domain}.auth.us-east-1.amazoncognito.com/login?response_type=token&client_id=${clientId}&redirect_uri=${redirectUri}`;
-            window.location.href = url;
-        }
-    </script>
+      <p id="status" class="muted">Please login to add tasks.</p>
+
+      <div id="taskArea" style="display:none">
+        <div id="taskForm">
+          <input id="title" placeholder="Task title" />
+          <button id="addBtn" class="btn">Add</button>
+        </div>
+        <ul id="tasks"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== CONFIG =====
+    const COGNITO_DOMAIN = "https://us-east-1v9b5wvemg.auth.us-east-1.amazoncognito.com";
+    const APP_CLIENT_ID = "7kg28dfrbs9pjukg7n2n6230vm";
+    const REDIRECT_URI = "http://taskfrontend2291.s3-website-us-east-1.amazonaws.com/";
+    const RESPONSE_TYPE = "token";
+    const SCOPES = "openid profile email";
+    // ==================
+
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const statusEl = document.getElementById('status');
+    const taskArea = document.getElementById('taskArea');
+    const addBtn = document.getElementById('addBtn');
+    const tasksUl = document.getElementById('tasks');
+
+    function buildAuthUrl(){
+      const url = new URL(`${COGNITO_DOMAIN}/oauth2/authorize`);
+      url.searchParams.set('response_type', RESPONSE_TYPE);
+      url.searchParams.set('client_id', APP_CLIENT_ID);
+      url.searchParams.set('redirect_uri', REDIRECT_URI);
+      url.searchParams.set('scope', SCOPES);
+      return url.toString();
+    }
+
+    loginBtn.addEventListener('click', () => window.location.href = buildAuthUrl());
+    logoutBtn.addEventListener('click', () => { localStorage.removeItem('auth'); location.reload(); });
+
+    function parseFragment() {
+      const hash = location.hash.replace(/^#/, '');
+      if (!hash) return null;
+      const params = new URLSearchParams(hash);
+      const id_token = params.get('id_token');
+      const access_token = params.get('access_token');
+      if (!id_token) return null;
+      const auth = { id_token, access_token, parsed: parseJwt(id_token) };
+      localStorage.setItem('auth', JSON.stringify(auth));
+      history.replaceState(null, '', location.pathname);
+      return auth;
+    }
+
+    function parseJwt(token) {
+      try {
+        const payload = token.split('.')[1];
+        return JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')));
+      } catch(e) { return null; }
+    }
+
+    function getAuth() {
+      const stored = localStorage.getItem('auth');
+      if (stored) return JSON.parse(stored);
+      return parseFragment();
+    }
+
+    function showLoggedOut(){
+      statusEl.textContent = 'Please login to add tasks.';
+      loginBtn.style.display = '';
+      logoutBtn.style.display = 'none';
+      taskArea.style.display = 'none';
+    }
+
+    function showLoggedIn(username){
+      statusEl.textContent = 'Logged in as ' + username;
+      loginBtn.style.display = 'none';
+      logoutBtn.style.display = '';
+      taskArea.style.display = '';
+    }
+
+    function loadTasks(){
+      const key = 'tasks_demo';
+      return JSON.parse(localStorage.getItem(key) || '[]');
+    }
+
+    function saveTasks(list){ localStorage.setItem('tasks_demo', JSON.stringify(list)); }
+
+    function renderTasks(){
+      const list = loadTasks();
+      tasksUl.innerHTML = list.map(t=>`<li>${t.title}</li>`).join('') || '<li class="muted">No tasks</li>';
+    }
+
+    addBtn.addEventListener('click', () => {
+      const title = document.getElementById('title').value.trim();
+      if (!title) return alert('Enter a task title');
+      const list = loadTasks();
+      list.push({ title, created: new Date().toISOString() });
+      saveTasks(list);
+      document.getElementById('title').value = '';
+      renderTasks();
+    });
+
+    (function init(){
+      const auth = getAuth();
+      if (!auth) { showLoggedOut(); } 
+      else {
+        const username = auth.parsed && (auth.parsed.email || auth.parsed['cognito:username'] || auth.parsed.sub) || 'User';
+        showLoggedIn(username);
+      }
+      renderTasks();
+    })();
+  </script>
 </body>
 </html>
