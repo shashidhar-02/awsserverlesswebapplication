@@ -1,11 +1,12 @@
 // ===================================
 // Configuration
 // ===================================
+// TODO: Update these values after completing AWS setup (see COMPLETE-SETUP-MANUAL.md)
 const AWS_CONFIG = {
     region: 'us-east-1',
-    userPoolId: 'us-east-1_sKHiELm7h',
-    clientId: '1eaqnsia4uh2fntfch81mva5t2',
-    apiEndpoint: 'https://your-api-id.execute-api.us-east-1.amazonaws.com/prod' // UPDATE THIS
+    userPoolId: 'YOUR_USER_POOL_ID',  // Example: us-east-1_XXXXXXXXX
+    clientId: 'YOUR_APP_CLIENT_ID',    // Example: 7kg28dfrbs9pjukg7n2n6230vm
+    apiEndpoint: 'YOUR_API_GATEWAY_URL' // Example: https://abcd1234.execute-api.us-east-1.amazonaws.com/prod
 };
 
 // ===================================

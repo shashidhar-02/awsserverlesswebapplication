@@ -480,9 +480,10 @@
 
     <script>
         // Cognito Config
-        const COGNITO_DOMAIN = "https://us-east-1v9b5wvemg.auth.us-east-1.amazoncognito.com";
-        const CLIENT_ID = "7kg28dfrbs9pjukg7n2n6230vm";
-        const REDIRECT_URI = "http://taskfrontend2291.s3-website-us-east-1.amazonaws.com/";
+        // TODO: Update these values after completing AWS setup (see COMPLETE-SETUP-MANUAL.md)
+        const COGNITO_DOMAIN = "YOUR_COGNITO_DOMAIN"; // Example: https://tasktracker-xxxxx.auth.us-east-1.amazoncognito.com
+        const CLIENT_ID = "YOUR_APP_CLIENT_ID"; // Example: 7kg28dfrbs9pjukg7n2n6230vm
+        const REDIRECT_URI = "YOUR_S3_WEBSITE_URL"; // Example: http://taskfrontend2291.s3-website-us-east-1.amazonaws.com/
         const SCOPES = "openid profile email";
 
         const signInBtn = document.getElementById("signIn");

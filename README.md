@@ -1,8 +1,14 @@
-# AWS Serverless Task Tracker Application
+# AWS Serverless Task Tracker 📝
 
-## Project Overview
+[![AWS](https://img.shields.io/badge/AWS-Serverless-orange)](https://aws.amazon.com/)
+[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![Status](https://img.shields.io/badge/status-production--ready-green)]()
 
-This comprehensive guide walks you through building a fully functional serverless web application using AWS services. The **Serverless Task Tracker App** is a productivity tool that allows users to register, authenticate, and manage their personal tasks without managing any servers.
+## 🎯 Project Overview
+
+A fully functional serverless task management web application built entirely with AWS cloud services. This project demonstrates end-to-end serverless architecture design, implementation, and deployment using **AWS S3, Lambda, API Gateway, DynamoDB, and Cognito**.
+
+**The Serverless Task Tracker App** is a productivity tool that allows users to register, authenticate, and manage their personal tasks without managing any servers—showcasing the power of cloud-native, event-driven architecture.
 
 ## Architecture
 
