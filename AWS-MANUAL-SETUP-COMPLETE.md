@@ -20,6 +20,7 @@ This guide provides step-by-step instructions to manually deploy a production-re
 - **Amazon S3** - Static website hosting
 
 **Architecture:**
+
 ```
 User Browser → S3 (Frontend) → API Gateway → Cognito Auth → Lambda → DynamoDB
 ```
@@ -94,10 +95,11 @@ Before starting, ensure you have:
    - Save this for IAM permissions
 
 ### **✅ Verification:**
+
 - Table status shows "Active" in green
 - Table appears in your DynamoDB tables list
 
-### **Table Schema** (Auto-created by Lambda):
+### **Table Schema** (Auto-created by Lambda)
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -155,38 +157,40 @@ Before starting, ensure you have:
    - Click **Next**
 
 6. **Step 5: Integrate Your App**
-   
+
    **User pool name:**
+
    ```
    TaskTrackerUserPool
    ```
-   
+
    **Hosted authentication pages:** ☐ Don't use (we'll build custom UI)
-   
+
    **Domain:** Leave empty (not needed)
-   
+
    Click **Next**
 
 7. **Step 6: Create App Client**
-   
+
    **App client name:**
+
    ```
    TaskTrackerAppClient
    ```
-   
+
    **Client secret:** ☐ **Don't generate a client secret** ⚠️ **CRITICAL**
-   
+
    **Authentication flows:**
    - ✅ ALLOW_USER_PASSWORD_AUTH
    - ✅ ALLOW_REFRESH_TOKEN_AUTH
    - ✅ ALLOW_USER_SRP_AUTH (optional)
-   
+
    **Advanced settings:**
    - Token expiration: Keep defaults
    - Access token: 60 minutes
    - ID token: 60 minutes
    - Refresh token: 30 days
-   
+
    Click **Next**
 
 8. **Step 7: Review and Create**
@@ -202,6 +206,7 @@ Before starting, ensure you have:
    - Open your `TaskTrackerUserPool`
    - Copy **User pool ID**
    - Format: `us-east-1_XXXXXXXXX`
+
    ```
    USER_POOL_ID: _______________________
    ```
@@ -211,6 +216,7 @@ Before starting, ensure you have:
    - Scroll to **App clients and analytics**
    - Copy **Client ID**
    - Format: `1a2b3c4d5e6f7g8h9i0j1k2l3m`
+
    ```
    APP_CLIENT_ID: _______________________
    ```
@@ -218,11 +224,13 @@ Before starting, ensure you have:
 3. **Get User Pool Region**
    - Extract from User Pool ID (part before underscore)
    - Example: `us-east-1` from `us-east-1_XXXXXXXXX`
+
    ```
    REGION: _______________________
    ```
 
 ### **✅ Verification:**
+
 - User pool status is "Active"
 - App client appears in the app clients list
 - Client secret is "No secret" (not generated)
@@ -247,34 +255,36 @@ Before starting, ensure you have:
    - Click **Next**
 
 3. **Attach Permissions Policies**
-   
+
    Search and select these two policies:
-   
+
    - ✅ **AWSLambdaBasicExecutionRole**
      - Allows Lambda to write logs to CloudWatch
-   
+
    - ✅ **AmazonDynamoDBFullAccess**
      - Allows Lambda to read/write DynamoDB
-   
+
    > **Production Note:** In production, use least-privilege custom policies
 
    Click **Next**
 
 4. **Name and Create Role**
-   
+
    **Role name:**
+
    ```
    TaskTrackerLambdaRole
    ```
-   
+
    **Description:**
+
    ```
    Execution role for Task Tracker Lambda functions
    ```
-   
+
    **Tags (Optional):**
    - Key: `Project` → Value: `TaskTracker`
-   
+
    Click **Create role**
 
 5. **Record Role ARN**
@@ -282,11 +292,13 @@ Before starting, ensure you have:
    - Click on role name
    - Copy **ARN**
    - Format: `arn:aws:iam::123456789012:role/TaskTrackerLambdaRole`
+
    ```
    ROLE_ARN: _______________________
    ```
 
 ### **✅ Verification:**
+
 - Role appears in roles list
 - Has 2 attached policies
 - Trust relationship shows Lambda service
@@ -298,6 +310,7 @@ Before starting, ensure you have:
 ### **Objective:** Create 4 serverless backend functions
 
 ### **Overview:**
+
 - `CreateTask` - POST /tasks (create new task)
 - `GetTasks` - GET /tasks (retrieve all tasks)
 - `UpdateTask` - PUT /tasks/{id} (update task status)
@@ -712,6 +725,7 @@ def lambda_handler(event, context):
 3. **Deploy** - Click **Deploy**
 
 ### **✅ Verification:**
+
 - All 4 Lambda functions appear in functions list
 - Each function shows "Active" status
 - Test each function using the "Test" tab (create test events)
@@ -860,9 +874,11 @@ def lambda_handler(event, context):
    - **Actions** → **Enable CORS**
    - **Access-Control-Allow-Methods:** GET, POST, OPTIONS
    - **Access-Control-Allow-Headers:** Add:
+
      ```
      Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token
      ```
+
    - **Access-Control-Allow-Origin:** `*`
    - Click **Enable CORS and replace existing CORS headers**
    - Click **Yes, replace existing values**
@@ -887,11 +903,13 @@ def lambda_handler(event, context):
    - After deployment, you'll see **Invoke URL** at top
    - Format: `https://abc123xyz.execute-api.us-east-1.amazonaws.com/prod`
    - **Save this URL!**
+
    ```
    API_INVOKE_URL: _______________________
    ```
 
 ### **✅ Verification:**
+
 - API shows 6 methods total:
   - POST /tasks
   - GET /tasks
@@ -915,26 +933,28 @@ def lambda_handler(event, context):
    - Click **Create bucket**
 
 2. **Configure Bucket**
-   
+
    **Bucket name:** (must be globally unique)
+
    ```
    task-tracker-[your-name]-2024
    ```
+
    Example: `task-tracker-john-2024`
-   
+
    **AWS Region:** Your region (e.g., us-east-1)
-   
+
    **Block Public Access:**
    - ☐ **Uncheck** "Block all public access"
    - ✅ Check acknowledgment box
-   
+
    **Bucket Versioning:** Disabled
-   
+
    **Encryption:** Keep defaults
-   
+
    **Tags (Optional):**
    - Key: `Project` → Value: `TaskTracker`
-   
+
    Click **Create bucket**
 
 ### **Part B: Enable Static Website Hosting**
@@ -957,6 +977,7 @@ def lambda_handler(event, context):
    - Scroll to **Static website hosting**
    - Copy **Bucket website endpoint**
    - Format: `http://task-tracker-john-2024.s3-website-us-east-1.amazonaws.com`
+
    ```
    WEBSITE_URL: _______________________
    ```
@@ -986,6 +1007,7 @@ def lambda_handler(event, context):
 ```
 
 3. **Example** (for bucket `task-tracker-john-2024`):
+
 ```json
 {
     "Version": "2012-10-17",
@@ -1055,6 +1077,7 @@ const CONFIG = {
    - All files should be accessible
 
 ### **✅ Verification:**
+
 - S3 bucket contains 3 files
 - Website endpoint is accessible
 - Files are publicly readable
@@ -1189,6 +1212,7 @@ const CONFIG = {
 **Cause:** API Gateway not using Lambda Proxy Integration
 
 **Solution:**
+
 - Edit each API method
 - Check "Use Lambda Proxy integration" checkbox
 - Redeploy API
@@ -1198,18 +1222,22 @@ const CONFIG = {
 ### **Issue: CORS errors in browser console**
 
 **Symptoms:**
+
 ```
 Access to fetch at '...' from origin '...' has been blocked by CORS policy
 ```
 
 **Solution:**
+
 1. API Gateway → Resources
 2. Select each resource
 3. Actions → Enable CORS
 4. Add headers:
+
    ```
    Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token
    ```
+
 5. Deploy API again
 
 ---
@@ -1219,6 +1247,7 @@ Access to fetch at '...' from origin '...' has been blocked by CORS policy
 **Cause:** Cognito authorizer not properly configured
 
 **Solution:**
+
 1. Check API Gateway → Authorizers
 2. Verify Cognito User Pool is selected
 3. Token Source must be: `Authorization`
@@ -1232,14 +1261,17 @@ Access to fetch at '...' from origin '...' has been blocked by CORS policy
 **Possible Causes:**
 
 **A) DynamoDB Permissions**
+
 - Check IAM role has `AmazonDynamoDBFullAccess`
 - Verify role is attached to Lambda functions
 
 **B) Wrong User ID**
+
 - Check Lambda logs in CloudWatch
 - Verify `user_id` is being extracted from token
 
 **C) JavaScript errors**
+
 - Open browser console (F12)
 - Check for API errors
 - Verify API_URL is correct in app.js
@@ -1249,6 +1281,7 @@ Access to fetch at '...' from origin '...' has been blocked by CORS policy
 ### **Issue: Email verification code not received**
 
 **Solutions:**
+
 1. Check spam/junk folder
 2. Wait 2-3 minutes (emails can be delayed)
 3. Request new code in app
@@ -1260,6 +1293,7 @@ Access to fetch at '...' from origin '...' has been blocked by CORS policy
 ### **Issue: "Invalid token" or "Token expired"**
 
 **Solution:**
+
 1. Sign out and sign in again
 2. Check token expiration in Cognito settings
 3. Verify system clock is correct
@@ -1272,6 +1306,7 @@ Access to fetch at '...' from origin '...' has been blocked by CORS policy
 **Cause:** Bucket policy not allowing public read
 
 **Solution:**
+
 1. S3 → Bucket → Permissions
 2. Uncheck "Block all public access"
 3. Add bucket policy (see Step 6, Part C)
@@ -1282,6 +1317,7 @@ Access to fetch at '...' from origin '...' has been blocked by CORS policy
 ### **Issue: API returns 500 Internal Server Error**
 
 **Debugging Steps:**
+
 1. **Check CloudWatch Logs:**
    - CloudWatch → Log groups
    - Find `/aws/lambda/CreateTask` (or other function)
@@ -1302,6 +1338,7 @@ Access to fetch at '...' from origin '...' has been blocked by CORS policy
 ### **Issue: App.js config not updating**
 
 **Solution:**
+
 1. Clear browser cache (Ctrl+Shift+Delete)
 2. Re-upload app.js to S3
 3. Verify S3 file has new content
@@ -1506,6 +1543,7 @@ Congratulations! You have successfully deployed a production-ready serverless ap
 ## 📚 **Next Steps**
 
 ### **Enhancements:**
+
 1. Add task categories/tags
 2. Implement task search functionality
 3. Add due dates and reminders
@@ -1514,6 +1552,7 @@ Congratulations! You have successfully deployed a production-ready serverless ap
 6. Implement real-time notifications
 
 ### **Advanced Topics:**
+
 1. Set up CI/CD pipeline (AWS CodePipeline)
 2. Implement Infrastructure as Code (AWS CDK/Terraform)
 3. Add monitoring and alerting (CloudWatch, SNS)
@@ -1523,6 +1562,7 @@ Congratulations! You have successfully deployed a production-ready serverless ap
 7. Add analytics (Amazon Pinpoint)
 
 ### **Learning Resources:**
+
 - [AWS Serverless Documentation](https://aws.amazon.com/serverless/)
 - [AWS Well-Architected Framework](https://aws.amazon.com/architecture/well-architected/)
 - [Serverless Application Lens](https://docs.aws.amazon.com/wellarchitected/latest/serverless-applications-lens/)
@@ -1533,6 +1573,7 @@ Congratulations! You have successfully deployed a production-ready serverless ap
 ## 📞 **Support**
 
 If you encounter issues:
+
 1. Check the Troubleshooting Guide above
 2. Review AWS CloudWatch Logs
 3. Verify all configuration values
