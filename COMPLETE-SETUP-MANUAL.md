@@ -1,6 +1,7 @@
 # Complete AWS Serverless Task Tracker - Setup Manual
 
 ## 📋 Table of Contents
+
 1. [Prerequisites](#prerequisites)
 2. [Step 1: DynamoDB Setup](#step-1-dynamodb-setup)
 3. [Step 2: AWS Cognito Setup](#step-2-aws-cognito-setup)
@@ -19,10 +20,11 @@
 **Don't worry if you're new to AWS - this guide assumes ZERO prior experience!**
 
 #### 1. AWS Account (Free)
+
 - **What it is:** Amazon's cloud computing platform account
 - **Cost:** Free tier available (we'll stay within free limits)
-- **How to get it:** 
-  1. Go to https://aws.amazon.com
+- **How to get it:**
+  1. Go to <https://aws.amazon.com>
   2. Click "Create an AWS Account" (orange button, top right)
   3. Enter your email and create a password
   4. Follow the registration steps (requires credit card for verification, but won't be charged)
@@ -30,16 +32,18 @@
 - **Time needed:** 10-15 minutes
 
 #### 2. AWS CLI (Command Line Interface)
+
 - **What it is:** A tool to control AWS from your computer's command line
 - **Why you need it:** To upload files to AWS easily
 - **How to install:**
-  1. Go to https://aws.amazon.com/cli/
+  1. Go to <https://aws.amazon.com/cli/>
   2. Download installer for Windows
   3. Run the installer (keep all default settings)
   4. Open PowerShell and type: `aws --version` to verify
   5. You should see something like: `aws-cli/2.x.x Python/3.x.x Windows/10`
 
 #### 3. Configure AWS CLI
+
 - **What it does:** Connects your computer to your AWS account
 - **How to do it:**
   1. Open PowerShell
@@ -51,7 +55,8 @@
      - **Default output format:** Type `json`
 
 **To Get Your Access Keys:**
-1. Log into AWS Console (https://console.aws.amazon.com)
+
+1. Log into AWS Console (<https://console.aws.amazon.com>)
 2. Click your name in top-right corner
 3. Click "Security credentials"
 4. Scroll to "Access keys" section
@@ -63,19 +68,23 @@
 10. Save them somewhere safe (like a password manager)
 
 #### 4. Text Editor
+
 - **What it is:** Software to edit code files
 - **Recommendation:** VS Code (free, beginner-friendly)
-- **How to get it:** Download from https://code.visualstudio.com
+- **How to get it:** Download from <https://code.visualstudio.com>
 - **Alternative:** Notepad (already on Windows) works too!
 
 ### Time Estimates (For Complete Beginners)
+
 - **Prerequisites setup:** 30-45 minutes (one-time only)
 - **AWS resources setup:** 60-90 minutes (following this guide)
 - **Testing:** 15-20 minutes
 - **Total first-time setup:** ~2-3 hours (worth it!)
 
 ### What You'll Learn
+
 By the end of this guide, you'll understand:
+
 - ✅ How to create cloud databases
 - ✅ How to set up user authentication
 - ✅ How to write serverless functions
@@ -90,11 +99,13 @@ By the end of this guide, you'll understand:
 ## Step 1: DynamoDB Setup
 
 ### 🎓 What is DynamoDB?
+
 **Simple explanation:** DynamoDB is like a super-fast Excel spreadsheet in the cloud that can handle millions of rows. It will store all your tasks (like "Buy groceries" or "Finish project").
 
 **Why we need it:** Every task you create needs to be saved somewhere. DynamoDB will remember all tasks even if you close your browser!
 
 **What we're creating:** A table called "TasksTable" that will store:
+
 - Task ID (unique identifier for each task)
 - User ID (who owns the task)
 - Task name (what the task is about)
@@ -111,6 +122,7 @@ By the end of this guide, you'll understand:
 *What you'll see:* AWS Console main page with lots of services
 
 *What to do:*
+
 - **Method 1 (Search):**
   1. Look at the top of the page - you'll see a search bar
   2. Type "DynamoDB" in the search bar
@@ -130,6 +142,7 @@ By the end of this guide, you'll understand:
 *What you'll see:* DynamoDB main page (might show "Get Started" if this is your first time)
 
 *What to do:*
+
 - Look for an orange button that says **"Create table"**
 - Click it
 
@@ -144,33 +157,39 @@ By the end of this guide, you'll understand:
 **Fill in these fields EXACTLY as shown:**
 
 **Table name:**
+
 - *What to type:* `TasksTable` (capital T in both places!)
 - *Why:* This is what our code will look for. Spelling must match exactly!
 
 **Partition key:**
+
 - *What to type:* `task_id`
 - *Type dropdown:* Select `String` (should be default)
 - *What this means:* This is like the "ID column" - each task gets a unique ID
 - *Why:* DynamoDB uses this to find tasks quickly
 
 **Sort key:**
+
 - *What to do:* **Leave this EMPTY** (don't add anything)
 - *Why:* We don't need sorting at the database level for this project
 
 **Table settings:**
+
 - *What to do:* Look for "Table settings" section
 - *What to select:* Keep **"Default settings"** selected (should already be selected)
 - *Why:* Amazon's defaults work great for our project!
 
 **Read/write capacity settings:**
+
 - *What you'll see:* Two options - "Provisioned" and "On-demand"
 - *What to select:* Click **"On-demand"**
-- *What this means:* 
+- *What this means:*
   - Provisioned = You pay for specific amount of usage (cheaper if you know your traffic)
   - On-demand = You pay for what you use (better for beginners!)
 - *Why:* "On-demand" automatically scales and is simpler for learning
 
 **Encryption at rest:**
+
 - *What to do:* Keep default (AWS owned key)
 - *Why:* Free and secure!
 
@@ -179,17 +198,20 @@ By the end of this guide, you'll understand:
 **4. Create the Table**
 
 *What to do:*
+
 - Scroll to the bottom of the page
 - You'll see an orange button: **"Create table"**
 - Click it!
 
 *What happens:*
+
 - You'll be taken back to the "Tables" page
 - You'll see your "TasksTable" with Status showing "Creating..."
 - **WAIT** - This takes 30-60 seconds
 - Status will change to "Active" with a green dot ✅
 
 *If something went wrong:*
+
 - Check the table name is exactly `TasksTable`
 - Make sure partition key is `task_id` (all lowercase with underscore)
 - Make sure you selected "String" as type
@@ -201,6 +223,7 @@ By the end of this guide, you'll understand:
 *What you need to save:* Table ARN (Amazon Resource Name)
 
 *How to find it:*
+
 1. Click on **"TasksTable"** (the name itself, it's a link)
 2. You'll see a new page with table details
 3. Look for "General information" section (usually at the top)
@@ -209,17 +232,20 @@ By the end of this guide, you'll understand:
 6. Click the copy icon (📋) next to it
 
 *Where to save it:*
+
 - Open CONFIGURATION-CHECKLIST.md
 - Paste it in the DynamoDB section
 - Or paste it in a text file for now
 
 *Why you need this:*
+
 - Lambda functions need permission to access this table
 - The ARN is like the table's "home address" in AWS
 
 ---
 
 **✅ Checkpoint: You should now see:**
+
 - ✓ TasksTable listed in your DynamoDB tables
 - ✓ Status shows "Active" with green dot
 - ✓ Table ARN saved somewhere safe
@@ -231,6 +257,7 @@ By the end of this guide, you'll understand:
 ### 1.2 Verify Table Structure
 
 Your table should support these attributes:
+
 - `task_id` (String) - Primary Key
 - `user_id` (String) - Cognito user ID
 - `task_name` (String) - Task title
@@ -245,15 +272,18 @@ Your table should support these attributes:
 ## Step 2: AWS Cognito Setup
 
 ### 🎓 What is AWS Cognito?
+
 **Simple explanation:** Cognito is like a bouncer at a club - it checks IDs (login credentials) and decides who can enter your application.
 
-**Why we need it:** 
+**Why we need it:**
+
 - Users need to create accounts (sign up)
 - Users need to log in (sign in)
 - We need to keep each user's tasks separate (security)
 - Cognito handles all of this automatically!
 
 **What we're creating:**
+
 - A "User Pool" (database of users)
 - An "App Client" (connection between your website and Cognito)
 - A "Hosted UI" (login page that Amazon provides for free)
@@ -271,12 +301,14 @@ Your table should support these attributes:
 *What you'll see:* AWS Console main page
 
 *What to do:*
+
 - Type "Cognito" in the search bar at the top
 - Click on **"Amazon Cognito"** (icon looks like two people)
 
 *You should now see:* Cognito main page with a big orange button
 
 *What to click:*
+
 - Find and click **"Create user pool"** (big orange button)
 
 ---
@@ -286,10 +318,12 @@ Your table should support these attributes:
 *What you'll see:* A form with different sign-in options
 
 **Provider types:**
+
 - *What to select:* Keep **"Cognito user pool"** selected (already selected by default)
 - *What this means:* Users will sign up directly in your app (not using Facebook/Google)
 
 **Cognito user pool sign-in options:**
+
 - *What you'll see:* Several checkboxes (Username, Email, Phone number)
 - *What to select:* Check ONLY **"Email"** ✓
 - *Why:* Users will log in with their email address (easy to remember!)
@@ -298,6 +332,7 @@ Your table should support these attributes:
 *Visual check:* You should see ONLY the Email box checked
 
 *What to click:*
+
 - Scroll to bottom
 - Click **"Next"** (orange button)
 
@@ -308,25 +343,29 @@ Your table should support these attributes:
 *What you'll see:* Form with password and MFA settings
 
 **Password policy:**
+
 - *What you'll see:* Options like "Cognito defaults" or "Custom"
 - *What to select:* Keep **"Cognito defaults"** selected
-- *What this includes:* 
+- *What this includes:*
   - Minimum 8 characters
   - Requires numbers and special characters
 - *Why:* Good security without being too complicated
 
 **Multi-factor authentication (MFA):**
+
 - *What you'll see:* Three options (No MFA, Optional, Required)
 - *What to select:* Choose **"No MFA"** (first option)
 - *Why:* Simpler for learning (you can add this later in production!)
 
 **User account recovery:**
+
 - *What you'll see:* Checkboxes for Email and/or SMS
 - *What to check:* Check ONLY **"Email"** ✓
 - *Why:* Users can reset passwords via email
 - *Make sure:* SMS is NOT checked (would cost money)
 
 *What to click:*
+
 - Click **"Next"** at the bottom
 
 ---
@@ -336,17 +375,20 @@ Your table should support these attributes:
 *What you'll see:* Settings for how users can sign up
 
 **Self-service sign-up:**
+
 - *What you'll see:* Checkbox "Enable self-registration"
 - *What to do:* **Check this box** ✓
 - *What this means:* Users can create their own accounts (don't need admin approval)
 - *Why:* Your app should let anyone sign up!
 
 **Attribute verification and user account confirmation:**
+
 - *What you'll see:* Options for verifying users
 - *What to select:* **"Send email message, verify email address"** (should be selected)
 - *Why:* Confirms the email is real and belongs to the user
 
 **Required attributes:**
+
 - *What you'll see:* A long list of checkboxes (name, email, phone, etc.)
 - *What to check:* Select these TWO:
   - ✓ **name** (so we know what to call the user)
@@ -354,9 +396,11 @@ Your table should support these attributes:
 - *Don't check:* Anything else (keeps signup simple!)
 
 **Verifying attribute changes:**
+
 - *What to do:* Keep defaults (should be checked for email)
 
 *What to click:*
+
 - Click **"Next"**
 
 ---
@@ -366,16 +410,19 @@ Your table should support these attributes:
 *What you'll see:* Options for how Cognito sends emails
 
 **Email provider:**
+
 - *What you'll see:* Two options - "Send email with Cognito" or "Send email with Amazon SES"
 - *What to select:* **"Send email with Cognito"** (first option)
 - *What this means:* Amazon sends emails for you (free, easy!)
 - *Why:* No setup needed! (SES requires verification and setup)
 
 **FROM email address:**
-- *What to do:* Leave it as is (no-reply@verificationemail.com)
+
+- *What to do:* Leave it as is (<no-reply@verificationemail.com>)
 - *Why:* This works fine for testing and learning
 
 *What to click:*
+
 - Click **"Next"**
 
 ---
@@ -385,20 +432,24 @@ Your table should support these attributes:
 *What you'll see:* Form to name your user pool and set up app client
 
 **User pool name:**
+
 - *What to type:* `TaskTrackerUserPool` (exactly like this!)
 - *Why:* Consistent naming helps you stay organized
 
 **Hosted authentication pages:**
+
 - *What you'll see:* Checkbox "Use the Cognito Hosted UI"
 - *What to do:* **Check this box** ✓
 - *What this means:* Amazon provides a login page for free!
 - *Why:* You don't have to build a login form from scratch
 
 **Domain:**
+
 - *What you'll see:* "Domain type" options
 - *What to select:* **"Use a Cognito domain"** (first option)
 
 **Cognito domain:**
+
 - *What you'll see:* Text box with format: `[prefix].auth.us-east-1.amazoncognito.com`
 - *What to type:* Choose a unique prefix like `tasktracker-` plus random numbers
 - *Example:* `tasktracker-12345` or `tasktracker-yourname`
@@ -411,12 +462,13 @@ This section sets up the connection between your website and Cognito.
 
 - **App type:** Keep "Public client" selected
 - **App client name:** Type `TaskTrackerWebClient` (exactly!)
-- **Client secret:** 
+- **Client secret:**
   - *What you'll see:* Checkbox "Generate a client secret"
   - *What to do:* **LEAVE IT UNCHECKED** ❌
   - *Why:* Public websites (like yours) shouldn't have secrets in code
 
 **Authentication flows:**
+
 - *What you'll see:* Several checkboxes for different authentication methods
 - *What to check:* Select these TWO:
   - ✓ **ALLOW_USER_PASSWORD_AUTH** (users can log in with email/password)
@@ -424,6 +476,7 @@ This section sets up the connection between your website and Cognito.
 - *Why:* These are the standard secure ways to log in
 
 *What to click:*
+
 - Click **"Next"**
 
 ---
@@ -433,6 +486,7 @@ This section sets up the connection between your website and Cognito.
 *What you'll see:* Summary of all your settings
 
 *What to do:*
+
 - **DON'T just click Create yet!**
 - Scroll through and double-check:
   - ✓ Email login is enabled
@@ -444,15 +498,18 @@ This section sets up the connection between your website and Cognito.
   - ✓ Auth flows are checked
 
 *If something is wrong:*
+
 - Click **"Back"** button repeatedly to go to that step
 - Fix it
 - Come back to review
 
 *When everything looks good:*
+
 - Click **"Create user pool"** (orange button)
 - Wait 10-15 seconds
 
 *You should see:*
+
 - Green success banner at top
 - Your new user pool listed
 - Status shows "Active"
@@ -472,8 +529,9 @@ But we're not done yet - we need to configure a few more things...
 2. **Configure App Client**
    - Scroll to "App clients and analytics"
    - Click on "TaskTrackerWebClient"
-   
+
 3. **Edit Hosted UI Settings**
+
    ```
    Allowed callback URLs:
    - http://localhost:8000/
@@ -501,6 +559,7 @@ But we're not done yet - we need to configure a few more things...
 ### 2.3 Note Important Values
 
 Save these for frontend configuration:
+
 ```
 User Pool ID: us-east-1_XXXXXXXXX
 App Client ID: 1234567890abcdefghijklmnop
@@ -512,9 +571,11 @@ Cognito Domain: https://tasktracker-xxxxx.auth.us-east-1.amazoncognito.com
 ## Step 3: Lambda Functions Setup
 
 ### 🎓 What is AWS Lambda?
+
 **Simple explanation:** Lambda is like having a robot employee who only works when needed. When someone creates a task in your app, Lambda wakes up, saves it to the database, then goes back to sleep. You only pay for the seconds it's actually working!
 
 **Why we need it:**
+
 - Someone needs to handle the "business logic" (create task, update task, etc.)
 - Traditional servers run 24/7 (expensive and wasteful)
 - Lambda only runs when triggered (cheap and efficient!)
@@ -522,12 +583,14 @@ Cognito Domain: https://tasktracker-xxxxx.auth.us-east-1.amazoncognito.com
 
 **What we're creating:**
 We'll create **4 Lambda functions** (4 different robots):
+
 1. **CreateTask** - Handles adding new tasks
 2. **GetTasks** - Fetches all tasks for a user
 3. **UpdateTask** - Modifies existing tasks
 4. **DeleteTask** - Removes tasks
 
 **Real-world example:**
+
 - User clicks "Add Task" → CreateTask function wakes up → saves to DynamoDB → goes back to sleep
 - Total time: maybe 200 milliseconds
 - Cost: fractions of a penny!
@@ -539,9 +602,11 @@ We'll create **4 Lambda functions** (4 different robots):
 ### 3.1 Create IAM Role for Lambda
 
 #### 🎓 What is an IAM Role?
+
 **Simple explanation:** An IAM Role is like giving your Lambda functions an ID badge that says "I'm allowed to access DynamoDB and write logs."
 
 **Why we need it:**
+
 - Lambda functions need permission to:
   - Read/write to your DynamoDB table
   - Write logs to CloudWatch (for debugging)
@@ -550,6 +615,7 @@ We'll create **4 Lambda functions** (4 different robots):
 
 **What we're doing:**
 Creating a role called `TaskTrackerLambdaRole` that:
+
 - ✅ Allows Lambda functions to run
 - ✅ Grants access to DynamoDB
 - ✅ Grants ability to write logs
@@ -563,6 +629,7 @@ Creating a role called `TaskTrackerLambdaRole` that:
    - Click "Create role"
 
 2. **Configure Role**
+
    ```
    Trusted entity type: AWS service
    Use case: Lambda
@@ -574,6 +641,7 @@ Creating a role called `TaskTrackerLambdaRole` that:
    - Search and attach: `CloudWatchLogsFullAccess`
 
 4. **Name and Create**
+
    ```
    Role name: TaskTrackerLambdaRole
    Description: Role for Task Tracker Lambda functions
@@ -584,6 +652,7 @@ Creating a role called `TaskTrackerLambdaRole` that:
 You need to create **4 Lambda functions**. For each:
 
 #### Common Configuration
+
 ```
 Runtime: Python 3.12
 Architecture: x86_64
@@ -597,6 +666,7 @@ Execution role: Use existing role → TaskTrackerLambdaRole
 **Function name:** `CreateTask`
 
 **Code:**
+
 ```python
 import json
 import boto3
@@ -666,6 +736,7 @@ def lambda_handler(event, context):
 ```
 
 **Environment Variables:**
+
 ```
 TABLE_NAME: TasksTable
 ```
@@ -677,6 +748,7 @@ TABLE_NAME: TasksTable
 **Function name:** `GetTasks`
 
 **Code:**
+
 ```python
 import json
 import boto3
@@ -734,6 +806,7 @@ def lambda_handler(event, context):
 ```
 
 **Environment Variables:**
+
 ```
 TABLE_NAME: TasksTable
 ```
@@ -745,6 +818,7 @@ TABLE_NAME: TasksTable
 **Function name:** `UpdateTask`
 
 **Code:**
+
 ```python
 import json
 import boto3
@@ -858,6 +932,7 @@ def lambda_handler(event, context):
 ```
 
 **Environment Variables:**
+
 ```
 TABLE_NAME: TasksTable
 ```
@@ -869,6 +944,7 @@ TABLE_NAME: TasksTable
 **Function name:** `DeleteTask`
 
 **Code:**
+
 ```python
 import json
 import boto3
@@ -938,6 +1014,7 @@ def lambda_handler(event, context):
 ```
 
 **Environment Variables:**
+
 ```
 TABLE_NAME: TasksTable
 ```
@@ -949,6 +1026,7 @@ TABLE_NAME: TasksTable
 For each function, create a test event:
 
 **Test Event for CreateTask:**
+
 ```json
 {
   "body": "{\"task_name\":\"Test Task\",\"description\":\"Testing\",\"status\":\"pending\",\"priority\":\"high\"}",
@@ -975,6 +1053,7 @@ For each function, create a test event:
    - Click "Build"
 
 2. **Configure API**
+
    ```
    Protocol: REST
    Create new API: New API
@@ -989,6 +1068,7 @@ For each function, create a test event:
 
 1. **In your API, click "Authorizers"**
 2. **Click "Create New Authorizer"**
+
    ```
    Name: CognitoAuthorizer
    Type: Cognito
@@ -996,6 +1076,7 @@ For each function, create a test event:
    Token Source: Authorization
    Token Validation: (leave empty)
    ```
+
 3. **Click "Create"**
 
 ### 4.3 Create Resources and Methods
@@ -1003,6 +1084,7 @@ For each function, create a test event:
 #### Create /tasks Resource
 
 1. **Click "Resources" → "Actions" → "Create Resource"**
+
    ```
    Resource Name: tasks
    Resource Path: /tasks
@@ -1034,6 +1116,7 @@ For each function, create a test event:
 
 1. **Select `/tasks` resource**
 2. **Actions → Create Resource**
+
    ```
    Resource Name: task
    Resource Path: {id}
@@ -1063,10 +1146,12 @@ For **each method** (POST, GET, PUT, DELETE):
 1. **Select the method**
 2. **Actions → Enable CORS**
 3. **Configure:**
+
    ```
    Access-Control-Allow-Headers: Content-Type,Authorization
    Access-Control-Allow-Origin: '*'
    ```
+
 4. **Click "Enable CORS and replace existing CORS headers"**
 
 ### 4.5 Deploy API
@@ -1078,9 +1163,11 @@ For **each method** (POST, GET, PUT, DELETE):
 5. **Click "Deploy"**
 
 6. **Note the Invoke URL**
+
    ```
    Example: https://abcd1234.execute-api.us-east-1.amazonaws.com/prod
    ```
+
    - Save this URL for frontend configuration
 
 ---
@@ -1094,6 +1181,7 @@ For **each method** (POST, GET, PUT, DELETE):
    - Click "Create bucket"
 
 2. **Configure Bucket**
+
    ```
    Bucket name: taskfrontend2291 (must be globally unique)
    AWS Region: us-east-1
@@ -1116,14 +1204,17 @@ For **each method** (POST, GET, PUT, DELETE):
 2. **Go to "Properties" tab**
 3. **Scroll to "Static website hosting"**
 4. **Click "Edit"**
+
    ```
    Static website hosting: Enable
    Hosting type: Host a static website
    Index document: index.html
    Error document: index.html
    ```
+
 5. **Save changes**
 6. **Note the Website endpoint**
+
    ```
    Example: http://taskfrontend2291.s3-website-us-east-1.amazonaws.com
    ```
@@ -1202,9 +1293,11 @@ aws s3 sync . s3://taskfrontend2291/ --exclude ".git/*" --exclude "*.md"
 3. **Go to "App integration" → "App clients"**
 4. **Edit your app client**
 5. **Update Callback URLs with your actual S3 URL:**
+
    ```
    http://taskfrontend2291.s3-website-us-east-1.amazonaws.com/
    ```
+
 6. **Update Sign out URLs with the same**
 7. **Save changes**
 
@@ -1215,6 +1308,7 @@ aws s3 sync . s3://taskfrontend2291/ --exclude ".git/*" --exclude "*.md"
 ### 6.1 Test Authentication Flow
 
 1. **Open your S3 website URL in a browser**
+
    ```
    http://taskfrontend2291.s3-website-us-east-1.amazonaws.com/
    ```
@@ -1223,7 +1317,7 @@ aws s3 sync . s3://taskfrontend2291/ --exclude ".git/*" --exclude "*.md"
 3. **You should be redirected to Cognito Hosted UI**
 4. **Click "Sign up"**
 5. **Create a new account:**
-   - Email: your-email@example.com
+   - Email: <your-email@example.com>
    - Password: (must meet requirements)
    - Name: Your Name
 
@@ -1237,6 +1331,7 @@ aws s3 sync . s3://taskfrontend2291/ --exclude ".git/*" --exclude "*.md"
 Once signed in, open browser DevTools Console and test:
 
 **Create a Task:**
+
 ```javascript
 const API_ENDPOINT = 'https://YOUR-API-ID.execute-api.us-east-1.amazonaws.com/prod';
 const accessToken = localStorage.getItem('auth') ? JSON.parse(localStorage.getItem('auth')).access_token : null;
@@ -1260,6 +1355,7 @@ fetch(`${API_ENDPOINT}/tasks`, {
 ```
 
 **Get All Tasks:**
+
 ```javascript
 fetch(`${API_ENDPOINT}/tasks`, {
     headers: {
@@ -1280,6 +1376,7 @@ fetch(`${API_ENDPOINT}/tasks`, {
 2. **Create New Request in Postman**
 
 **POST Create Task:**
+
 ```
 URL: https://YOUR-API-ID.execute-api.us-east-1.amazonaws.com/prod/tasks
 Method: POST
@@ -1297,6 +1394,7 @@ Body (raw JSON):
 ```
 
 **GET All Tasks:**
+
 ```
 URL: https://YOUR-API-ID.execute-api.us-east-1.amazonaws.com/prod/tasks
 Method: GET
@@ -1305,6 +1403,7 @@ Headers:
 ```
 
 **PUT Update Task:**
+
 ```
 URL: https://YOUR-API-ID.execute-api.us-east-1.amazonaws.com/prod/tasks/{task_id}
 Method: PUT
@@ -1318,6 +1417,7 @@ Body (raw JSON):
 ```
 
 **DELETE Task:**
+
 ```
 URL: https://YOUR-API-ID.execute-api.us-east-1.amazonaws.com/prod/tasks/{task_id}
 Method: DELETE
@@ -1336,6 +1436,7 @@ Headers:
 **Problem:** Browser shows CORS policy error
 
 **Solution:**
+
 - Ensure CORS is enabled on all API Gateway methods
 - Check Lambda functions return proper CORS headers
 - Verify OPTIONS method is created for each resource
@@ -1345,6 +1446,7 @@ Headers:
 **Problem:** API returns 401 Unauthorized
 
 **Solution:**
+
 - Verify access token is valid (not expired)
 - Check Authorization header is correctly set
 - Ensure Cognito Authorizer is configured on the method
@@ -1355,6 +1457,7 @@ Headers:
 **Problem:** Lambda returns 500 error
 
 **Solution:**
+
 - Check CloudWatch Logs for Lambda function
 - Go to: CloudWatch → Log groups → /aws/lambda/[FunctionName]
 - Look for error messages and stack traces
@@ -1366,6 +1469,7 @@ Headers:
 **Problem:** Task created but not appearing in GET requests
 
 **Solution:**
+
 - Verify user_id is correctly captured from Cognito token
 - Check DynamoDB table for the item
 - Ensure scan filter in GetTasks matches user_id format
@@ -1375,6 +1479,7 @@ Headers:
 **Problem:** Redirect URL mismatch error
 
 **Solution:**
+
 - Ensure S3 URL exactly matches callback URL in Cognito
 - Include or exclude trailing slash consistently
 - Check both http/https protocols match
@@ -1384,6 +1489,7 @@ Headers:
 **Problem:** 403 Forbidden or Access Denied
 
 **Solution:**
+
 - Verify bucket policy allows public read access
 - Ensure "Block all public access" is disabled
 - Check static website hosting is enabled
@@ -1396,6 +1502,7 @@ Headers:
 ### CloudWatch Logs
 
 Monitor your Lambda functions:
+
 ```
 CloudWatch → Log groups → /aws/lambda/CreateTask
 CloudWatch → Log groups → /aws/lambda/GetTasks
@@ -1406,6 +1513,7 @@ CloudWatch → Log groups → /aws/lambda/DeleteTask
 ### DynamoDB Metrics
 
 Monitor database performance:
+
 ```
 DynamoDB → Tables → TasksTable → Monitor tab
 ```
@@ -1413,6 +1521,7 @@ DynamoDB → Tables → TasksTable → Monitor tab
 ### API Gateway Metrics
 
 Monitor API usage:
+
 ```
 API Gateway → TaskTrackerAPI → Stages → prod → Logs/Tracing
 ```
@@ -1432,6 +1541,7 @@ API Gateway → TaskTrackerAPI → Stages → prod → Logs/Tracing
 ### Beyond Free Tier
 
 Estimated costs for moderate usage:
+
 - Lambda: ~$0.20/million requests
 - API Gateway: ~$3.50/million requests
 - DynamoDB: ~$1.25/million read requests
