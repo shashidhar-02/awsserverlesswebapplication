@@ -1,145 +1,550 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Task Tracker</title>
-  <style>
-    body{font-family:Arial,Helvetica,sans-serif;background:#f4f6fb;margin:0}
-    .wrap{max-width:780px;margin:40px auto;padding:18px}
-    .card{background:#fff;padding:18px;border-radius:10px;box-shadow:0 6px 18px rgba(2,6,23,0.06)}
-    header{display:flex;justify-content:space-between;align-items:center}
-    h1{margin:0}
-    .btn{background:#1f6feb;color:#fff;border:0;padding:10px 14px;border-radius:8px;cursor:pointer}
-    #taskForm{display:flex;gap:8px;margin-top:12px}
-    input{flex:1;padding:8px;border-radius:6px;border:1px solid #e6e9f0}
-    ul{padding-left:0;list-style:none}
-    li{padding:8px 0;border-bottom:1px solid #f1f3f8}
-    .muted{color:#6b7280;font-size:14px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serverless Task Tracker - AWS Project</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            margin-bottom: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2rem;
+        }
+        
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        #signIn {
+            background: #667eea;
+            color: white;
+        }
+        
+        #signIn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        #signOut {
+            background: #f44336;
+            color: white;
+            display: none;
+        }
+        
+        #signOut:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+        
+        .main-content {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            margin-bottom: 30px;
+        }
+        
+        .user-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+        
+        .user-info.show {
+            display: block;
+        }
+        
+        .user-info p {
+            margin: 8px 0;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+        
+        .user-info span {
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        .overview {
+            margin-bottom: 40px;
+        }
+        
+        .overview h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+        
+        .overview p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+        }
+        
+        .section {
+            margin: 30px 0;
+        }
+        
+        .section h3 {
+            color: #764ba2;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .components {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .component {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        
+        .component:hover {
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+        }
+        
+        .component h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .component ul {
+            list-style-position: inside;
+            color: #666;
+            font-size: 0.95rem;
+        }
+        
+        .component li {
+            margin-bottom: 8px;
+        }
+        
+        .workflow {
+            background: #f0f4ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .workflow ol {
+            margin-left: 20px;
+        }
+        
+        .workflow li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+        
+        .skills {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .skill {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .cta-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #667eea;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            margin-top: 40px;
+        }
+    </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <header>
-        <h1>Task Tracker</h1>
-        <div id="authButtons">
-          <button id="loginBtn" class="btn">Login</button>
-          <button id="logoutBtn" class="btn" style="display:none;background:#6b7280">Logout</button>
-        </div>
-      </header>
+    <div class="container">
+        <header>
+            <h1>🚀 Serverless Task Tracker</h1>
+            <div class="auth-buttons">
+                <button id="signIn">Sign In with Cognito</button>
+                <button id="signOut">Sign Out</button>
+            </div>
+        </header>
 
-      <p id="status" class="muted">Please login to add tasks.</p>
+        <div class="main-content">
+            <!-- User Info Section -->
+            <div id="userSection" class="user-info">
+                <p><strong>👤 Logged in as:</strong> <span id="email">-</span></p>
+                <p><strong>🔐 Access Token:</strong> <span id="access-token" style="font-size: 0.8rem;">-</span></p>
+                <p><strong>🎟️ ID Token:</strong> <span id="id-token" style="font-size: 0.8rem;">-</span></p>
+            </div>
 
-      <div id="taskArea" style="display:none">
-        <div id="taskForm">
-          <input id="title" placeholder="Task title" />
-          <button id="addBtn" class="btn">Add</button>
+            <!-- Project Overview -->
+            <div class="overview">
+                <h2>📋 Project Overview</h2>
+                <p>
+                    This project introduces you to <strong>serverless architecture</strong> — one of the most popular and cost-effective ways 
+                    to build modern web applications using AWS. You don't need to manage servers or infrastructure; instead, 
+                    AWS automatically handles scaling, availability, and maintenance.
+                </p>
+                <p>
+                    You'll build a fully functional web application where the frontend is hosted on <strong>Amazon S3</strong>, 
+                    the backend runs on <strong>AWS Lambda</strong> with <strong>API Gateway</strong> as the API layer, and 
+                    <strong>DynamoDB</strong> serves as the database. User authentication is managed by <strong>AWS Cognito</strong>.
+                </p>
+            </div>
+
+            <!-- Key AWS Components -->
+            <div class="section">
+                <h3>🏗️ Key AWS Components Used</h3>
+                <div class="components">
+                    <div class="component">
+                        <h4>Amazon S3</h4>
+                        <ul>
+                            <li>Hosts static frontend files</li>
+                            <li>Secure, scalable storage</li>
+                            <li>Globally available CDN ready</li>
+                            <li>Static website hosting</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <h4>AWS Lambda</h4>
+                        <ul>
+                            <li>Backend logic execution</li>
+                            <li>Auto-triggered by API calls</li>
+                            <li>No server provisioning needed</li>
+                            <li>Event-driven architecture</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <h4>API Gateway</h4>
+                        <ul>
+                            <li>Frontend-backend interface</li>
+                            <li>Routes HTTP requests</li>
+                            <li>Security & logging</li>
+                            <li>Throttling & caching</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <h4>DynamoDB</h4>
+                        <ul>
+                            <li>NoSQL database</li>
+                            <li>High performance</li>
+                            <li>Auto-scaling capable</li>
+                            <li>AWS SDK integration</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <h4>AWS Cognito</h4>
+                        <ul>
+                            <li>User authentication</li>
+                            <li>Registration & sign-in</li>
+                            <li>Multi-factor auth support</li>
+                            <li>JWT token management</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Architecture -->
+            <div class="section">
+                <h3>🔄 Application Architecture</h3>
+                <p><strong>Flow:</strong> Frontend (S3) → API Gateway → Lambda Functions → DynamoDB (with Cognito for Authentication)</p>
+                <div class="workflow">
+                    <ol>
+                        <li><strong>User Access:</strong> User accesses the web interface hosted on S3</li>
+                        <li><strong>Authentication:</strong> User logs in via Cognito (receives JWT tokens)</li>
+                        <li><strong>API Request:</strong> Task actions (add, edit, delete) send requests to API Gateway with auth token</li>
+                        <li><strong>Token Validation:</strong> API Gateway validates the token and triggers Lambda function</li>
+                        <li><strong>Processing:</strong> Lambda processes the request and interacts with DynamoDB</li>
+                        <li><strong>Response:</strong> Response is sent back to frontend and displayed to user</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Core Functionalities -->
+            <div class="section">
+                <h3>⚙️ Core Functionalities</h3>
+                <div class="components">
+                    <div class="component">
+                        <h4>1️⃣ User Authentication</h4>
+                        <ul>
+                            <li>Sign up with email verification</li>
+                            <li>Sign in with credentials</li>
+                            <li>Password reset capability</li>
+                            <li>JWT-based API authentication</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <h4>2️⃣ Task Management</h4>
+                        <ul>
+                            <li><strong>Create:</strong> Add new tasks</li>
+                            <li><strong>Read:</strong> View all tasks</li>
+                            <li><strong>Update:</strong> Edit task details</li>
+                            <li><strong>Delete:</strong> Remove tasks</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <h4>3️⃣ Data Storage</h4>
+                        <ul>
+                            <li>Task ID (Primary Key)</li>
+                            <li>User ID (Cognito)</li>
+                            <li>Task name & description</li>
+                            <li>Status & timestamps</li>
+                        </ul>
+                    </div>
+                    <div class="component">
+                        <h4>4️⃣ Security</h4>
+                        <ul>
+                            <li>User isolation</li>
+                            <li>Token validation</li>
+                            <li>API authorization</li>
+                            <li>Encrypted transmission</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DynamoDB Schema -->
+            <div class="section">
+                <h3>📊 DynamoDB Table Schema</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Attribute</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>task_id</td>
+                            <td>String (Primary Key)</td>
+                            <td>Unique identifier for the task</td>
+                        </tr>
+                        <tr>
+                            <td>user_id</td>
+                            <td>String</td>
+                            <td>Cognito user ID of task owner</td>
+                        </tr>
+                        <tr>
+                            <td>task_name</td>
+                            <td>String</td>
+                            <td>Title of the task</td>
+                        </tr>
+                        <tr>
+                            <td>description</td>
+                            <td>String</td>
+                            <td>Detailed task information</td>
+                        </tr>
+                        <tr>
+                            <td>status</td>
+                            <td>String</td>
+                            <td>Pending or Completed</td>
+                        </tr>
+                        <tr>
+                            <td>created_at</td>
+                            <td>String</td>
+                            <td>ISO 8601 timestamp</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Skills Gained -->
+            <div class="section">
+                <h3>🎓 Skills Gained</h3>
+                <div class="skills">
+                    <div class="skill">Serverless Architecture Design</div>
+                    <div class="skill">Event-Driven Architecture</div>
+                    <div class="skill">API Development & Gateway</div>
+                    <div class="skill">NoSQL Database Management</div>
+                    <div class="skill">Cloud Hosting & CDN</div>
+                    <div class="skill">User Authentication & JWT</div>
+                    <div class="skill">AWS Service Integration</div>
+                    <div class="skill">Scalable Application Design</div>
+                </div>
+            </div>
+
+            <!-- Expected Outcomes -->
+            <div class="section">
+                <h3>🎯 Expected Outcomes</h3>
+                <div class="workflow">
+                    <ul>
+                        <li>✅ A fully deployed, functional task-tracking web application</li>
+                        <li>✅ Real-world experience connecting AWS services in production workflow</li>
+                        <li>✅ Understanding of serverless architecture benefits and patterns</li>
+                        <li>✅ Hands-on experience with multiple AWS services</li>
+                        <li>✅ Scalable, low-cost, maintenance-free solution</li>
+                        <li>✅ Foundation for building enterprise-grade applications</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button class="cta-button" onclick="document.getElementById('signIn').click()">
+                🚀 Get Started - Sign In Now
+            </button>
         </div>
-        <ul id="tasks"></ul>
-      </div>
     </div>
-  </div>
 
-  <script>
-    // ===== CONFIG =====
-    const COGNITO_DOMAIN = "https://us-east-1v9b5wvemg.auth.us-east-1.amazoncognito.com";
-    const APP_CLIENT_ID = "7kg28dfrbs9pjukg7n2n6230vm";
-    const REDIRECT_URI = "http://taskfrontend2291.s3-website-us-east-1.amazonaws.com/";
-    const RESPONSE_TYPE = "token";
-    const SCOPES = "openid profile email";
-    // ==================
+    <footer>
+        <p>© 2024 Serverless Task Tracker | Built with AWS Services</p>
+    </footer>
 
-    const loginBtn = document.getElementById('loginBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const statusEl = document.getElementById('status');
-    const taskArea = document.getElementById('taskArea');
-    const addBtn = document.getElementById('addBtn');
-    const tasksUl = document.getElementById('tasks');
+    <script>
+        // Cognito Config
+        const COGNITO_DOMAIN = "https://us-east-1v9b5wvemg.auth.us-east-1.amazoncognito.com";
+        const CLIENT_ID = "7kg28dfrbs9pjukg7n2n6230vm";
+        const REDIRECT_URI = "http://taskfrontend2291.s3-website-us-east-1.amazonaws.com/";
+        const SCOPES = "openid profile email";
 
-    function buildAuthUrl(){
-      const url = new URL(`${COGNITO_DOMAIN}/oauth2/authorize`);
-      url.searchParams.set('response_type', RESPONSE_TYPE);
-      url.searchParams.set('client_id', APP_CLIENT_ID);
-      url.searchParams.set('redirect_uri', REDIRECT_URI);
-      url.searchParams.set('scope', SCOPES);
-      return url.toString();
-    }
+        const signInBtn = document.getElementById("signIn");
+        const signOutBtn = document.getElementById("signOut");
+        const userSection = document.getElementById("userSection");
 
-    loginBtn.addEventListener('click', () => window.location.href = buildAuthUrl());
-    logoutBtn.addEventListener('click', () => { localStorage.removeItem('auth'); location.reload(); });
+        // Sign in redirect
+        signInBtn.addEventListener("click", () => {
+            window.location.href = `${COGNITO_DOMAIN}/login?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${SCOPES}`;
+        });
 
-    function parseFragment() {
-      const hash = location.hash.replace(/^#/, '');
-      if (!hash) return null;
-      const params = new URLSearchParams(hash);
-      const id_token = params.get('id_token');
-      const access_token = params.get('access_token');
-      if (!id_token) return null;
-      const auth = { id_token, access_token, parsed: parseJwt(id_token) };
-      localStorage.setItem('auth', JSON.stringify(auth));
-      history.replaceState(null, '', location.pathname);
-      return auth;
-    }
+        // Sign out redirect
+        signOutBtn.addEventListener("click", () => {
+            localStorage.removeItem('auth');
+            window.location.href = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(REDIRECT_URI)}`;
+        });
 
-    function parseJwt(token) {
-      try {
-        const payload = token.split('.')[1];
-        return JSON.parse(atob(payload.replace(/-/g,'+').replace(/_/g,'/')));
-      } catch(e) { return null; }
-    }
+        // Parse tokens from URL after redirect
+        window.addEventListener('load', () => {
+            if (window.location.hash) {
+                const hash = window.location.hash.substring(1);
+                const params = new URLSearchParams(hash);
+                const access_token = params.get('access_token');
+                const id_token = params.get('id_token');
 
-    function getAuth() {
-      const stored = localStorage.getItem('auth');
-      if (stored) return JSON.parse(stored);
-      return parseFragment();
-    }
-
-    function showLoggedOut(){
-      statusEl.textContent = 'Please login to add tasks.';
-      loginBtn.style.display = '';
-      logoutBtn.style.display = 'none';
-      taskArea.style.display = 'none';
-    }
-
-    function showLoggedIn(username){
-      statusEl.textContent = 'Logged in as ' + username;
-      loginBtn.style.display = 'none';
-      logoutBtn.style.display = '';
-      taskArea.style.display = '';
-    }
-
-    function loadTasks(){
-      const key = 'tasks_demo';
-      return JSON.parse(localStorage.getItem(key) || '[]');
-    }
-
-    function saveTasks(list){ localStorage.setItem('tasks_demo', JSON.stringify(list)); }
-
-    function renderTasks(){
-      const list = loadTasks();
-      tasksUl.innerHTML = list.map(t=>`<li>${t.title}</li>`).join('') || '<li class="muted">No tasks</li>';
-    }
-
-    addBtn.addEventListener('click', () => {
-      const title = document.getElementById('title').value.trim();
-      if (!title) return alert('Enter a task title');
-      const list = loadTasks();
-      list.push({ title, created: new Date().toISOString() });
-      saveTasks(list);
-      document.getElementById('title').value = '';
-      renderTasks();
-    });
-
-    (function init(){
-      const auth = getAuth();
-      if (!auth) { showLoggedOut(); } 
-      else {
-        const username = auth.parsed && (auth.parsed.email || auth.parsed['cognito:username'] || auth.parsed.sub) || 'User';
-        showLoggedIn(username);
-      }
-      renderTasks();
-    })();
-  </script>
+                if (access_token && id_token) {
+                    // Decode ID token to get email
+                    try {
+                        const decoded = JSON.parse(atob(id_token.split('.')[1]));
+                        const email = decoded.email || decoded['cognito:username'] || 'User';
+                        
+                        document.getElementById('email').textContent = email;
+                        document.getElementById('access-token').textContent = access_token.substring(0, 50) + '...';
+                        document.getElementById('id-token').textContent = id_token.substring(0, 50) + '...';
+                        
+                        userSection.classList.add('show');
+                        signInBtn.style.display = 'none';
+                        signOutBtn.style.display = 'inline-block';
+                        
+                        localStorage.setItem('auth', JSON.stringify({ access_token, id_token, email }));
+                    } catch (e) {
+                        console.error('Error parsing token:', e);
+                    }
+                    
+                    // Clean URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            } else {
+                // Check localStorage for existing auth
+                const auth = localStorage.getItem('auth');
+                if (auth) {
+                    const data = JSON.parse(auth);
+                    document.getElementById('email').textContent = data.email;
+                    document.getElementById('access-token').textContent = data.access_token.substring(0, 50) + '...';
+                    document.getElementById('id-token').textContent = data.id_token.substring(0, 50) + '...';
+                    
+                    userSection.classList.add('show');
+                    signInBtn.style.display = 'none';
+                    signOutBtn.style.display = 'inline-block';
+                }
+            }
+        });
+    </script>
 </body>
 </html>
