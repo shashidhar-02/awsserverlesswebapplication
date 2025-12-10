@@ -3,51 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Tracker - Serverless App</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✅</text></svg>">
+    <title>Task Tracker - My Tasks</title>
+    <link rel="stylesheet" href="task-styles.css">
 </head>
 <body>
-    <!-- Loading Overlay -->
-    <div id="loading-overlay" class="loading-overlay">
-        <div class="spinner"></div>
-        <p>Loading...</p>
+    <div class="container">
+        <header class="app-header">
+            <h1>📝 My Tasks</h1>
+            <div class="user-info">
+                <span id="userEmail">Loading...</span>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+        </header>
+
+        <div class="task-input-section">
+            <input type="text" id="taskInput" placeholder="Enter a new task..." />
+            <button id="addTaskBtn">Add Task</button>
+        </div>
+
+        <div class="tasks-container">
+            <h2>Active Tasks</h2>
+            <div id="tasksList"></div>
+            <p id="emptyMessage" style="display: none; text-align: center; color: #666;">
+                No tasks yet. Add your first task above!
+            </p>
+        </div>
     </div>
 
-    <div class="app-container">
-        <!-- Authentication Section -->
-        <div id="auth-section" class="auth-section">
-            <div class="auth-card">
-                <div class="app-header">
-                    <h1>📋 Task Tracker</h1>
-                    <p class="subtitle">Serverless Task Management</p>
-                </div>
+    <script>
+        // Configuration - UPDATE THESE VALUES
+        const config = {
+            cognitoDomain: 'https://YOUR-DOMAIN.auth.REGION.amazoncognito.com',
+            clientId: 'YOUR_CLIENT_ID',
+            apiEndpoint: 'https://YOUR-API-GATEWAY-ID.execute-api.REGION.amazonaws.com/prod'
+        };
 
-                <!-- Login Form -->
-                <div id="login-form" class="form-container active">
-                    <h2>Welcome Back</h2>
-                    <form id="login">
-                        <div class="input-group">
-                            <label for="login-email">Email Address</label>
-                            <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
-                        </div>
-                        <div class="input-group">
-                            <label for="login-password">Password</label>
-                            <input type="password" id="login-password" placeholder="Enter your password" required autocomplete="current-password">
-                        </div>
-                        <button type="submit" class="btn-primary">
-                            <span class="btn-text">Sign In</span>
-                            <span class="btn-loader">
-                                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-                            </span>
-                        </button>
-                    </form>
-                    <p class="form-switch">Don't have an account? <a href="#" id="show-signup">Sign up</a></p>
-                </div>
+        // Check authentication
+        const idToken = sessionStorage.getItem('idToken');
+        const accessToken = sessionStorage.getItem('accessToken');
+        const userEmail = sessionStorage.getItem('userEmail');
 
-                <!-- Signup Form -->
-                <div id="signup-form" class="form-container">
-                    <h2>Create Account</h2>
+        if (!idToken || !accessToken) {
+            alert('Please login first');
+            window.location.href = 'index.html';
+        }
+
+        // Display user email
+        document.getElementById('userEmail').textContent = userEmail || 'User';
+
+        // Logout handler
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.clear();
+            const logoutUrl = `${config.cognitoDomain}/logout?client_id=${config.clientId}&logout_uri=${encodeURIComponent(window.location.origin + '/index.html')}`;
+            window.location.href = logoutUrl;
+        });
+
+        // Task management (placeholder - will connect to API later)
+        document.getElementById('addTaskBtn').addEventListener('click', () => {
+            const taskInput = document.getElementById('taskInput');
+            const taskText = taskInput.value.trim();
+            
+            if (taskText) {
+                addTaskToUI(taskText);
+                taskInput.value = '';
+            }
+        });
+
+        function addTaskToUI(taskText) {
+            const tasksList = document.getElementById('tasksList');
+            const emptyMessage = document.getElementById('emptyMessage');
+            
+            emptyMessage.style.display = 'none';
+            
+            const taskDiv = document.createElement('div');
+            taskDiv.className = 'task-item';
+            taskDiv.innerHTML = `
+                <span>${taskText}</span>
+                <button onclick="this.parentElement.remove()">Delete</button>
+            `;
+            
+            tasksList.appendChild(taskDiv);
+        }
+
+        // Load tasks on page load
+        window.onload = () => {
+            console.log('Tasks page loaded');
+            console.log('User authenticated:', !!idToken);
+        };
+    </script>
+</body>
+</html>
                     <form id="signup">
                         <div class="input-group">
                             <label for="signup-name">Full Name</label>

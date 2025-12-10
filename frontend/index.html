@@ -3,51 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Serverless Task Tracker - AWS Project</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        header {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px 30px;
-            margin-bottom: 40px;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        h1 {
-            color: #667eea;
-            font-size: 2rem;
-        }
-        
-        .auth-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        
-        button {
-            padding: 12px 24px;
+    <title>Task Tracker - Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-card">
+            <h1>📝 Task Tracker</h1>
+            <p class="subtitle">Manage your tasks efficiently</p>
+            
+            <div class="welcome-message">
+                <h2>Welcome!</h2>
+                <p>Sign in to manage your tasks</p>
+            </div>
+
+            <button id="loginBtn" class="login-btn">
+                Sign In with Cognito
+            </button>
+
+            <div class="info-box">
+                <h3>Test Credentials</h3>
+                <p><strong>Email:</strong> testuser@example.com</p>
+                <p><strong>Password:</strong> TestPass123!</p>
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <span class="icon">✅</span>
+                    <span>Create Tasks</span>
+                </div>
+                <div class="feature">
+                    <span class="icon">📋</span>
+                    <span>Track Progress</span>
+                </div>
+                <div class="feature">
+                    <span class="icon">🔒</span>
+                    <span>Secure Login</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - UPDATE THESE VALUES
+        const config = {
+            cognitoDomain: 'https://YOUR-DOMAIN.auth.REGION.amazoncognito.com',
+            clientId: 'YOUR_CLIENT_ID',
+            redirectUri: window.location.origin + '/callback.html',
+            responseType: 'code'
+        };
+
+        // Login button handler
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const loginUrl = `${config.cognitoDomain}/login?client_id=${config.clientId}&response_type=${config.responseType}&redirect_uri=${encodeURIComponent(config.redirectUri)}`;
+            window.location.href = loginUrl;
+        });
+
+        // Check if user is already logged in
+        window.onload = () => {
+            const accessToken = sessionStorage.getItem('accessToken');
+            if (accessToken) {
+                window.location.href = 'tasks.html';
+            }
+        };
+    </script>
+</body>
+</html>
             border: none;
             border-radius: 6px;
             cursor: pointer;

@@ -14,6 +14,7 @@ This checklist will help you track all the configuration values you need to coll
 - [ ] **Status:** Active
 
 **Table ARN to save:**
+
 ```
 arn:aws:dynamodb:us-east-1:____________:table/TasksTable
 ```
@@ -29,6 +30,7 @@ arn:aws:dynamodb:us-east-1:____________:table/TasksTable
 - [ ] **Self-registration:** Enabled
 
 **Values to save:**
+
 ```
 User Pool ID: us-east-1_____________
 User Pool ARN: arn:aws:cognito-idp:us-east-1:____________:userpool/us-east-1_____________
@@ -41,6 +43,7 @@ User Pool ARN: arn:aws:cognito-idp:us-east-1:____________:userpool/us-east-1____
 - [ ] **Authentication Flows:** ALLOW_USER_PASSWORD_AUTH, ALLOW_REFRESH_TOKEN_AUTH
 
 **Values to save:**
+
 ```
 App Client ID: ____________________________
 ```
@@ -50,6 +53,7 @@ App Client ID: ____________________________
 - [ ] **Domain Configured:** tasktracker-[unique-id]
 
 **Values to save:**
+
 ```
 Cognito Domain: https://tasktracker-____________.auth.us-east-1.amazoncognito.com
 ```
@@ -81,6 +85,7 @@ Cognito Domain: https://tasktracker-____________.auth.us-east-1.amazoncognito.co
   - [ ] CloudWatchLogsFullAccess
 
 **Role ARN to save:**
+
 ```
 arn:aws:iam::____________:role/TaskTrackerLambdaRole
 ```
@@ -126,6 +131,7 @@ arn:aws:iam::____________:role/TaskTrackerLambdaRole
 - [ ] **Endpoint:** Regional
 
 **Values to save:**
+
 ```
 API ID: ____________
 API Name: TaskTrackerAPI
@@ -166,6 +172,7 @@ API Name: TaskTrackerAPI
 - [ ] **API Deployed to prod stage**
 
 **API Invoke URL to save:**
+
 ```
 https://____________.execute-api.us-east-1.amazonaws.com/prod
 ```
@@ -188,6 +195,7 @@ https://____________.execute-api.us-east-1.amazonaws.com/prod
 - [ ] **Block Public Access:** DISABLED
 
 **Bucket name to save:**
+
 ```
 Bucket Name: ____________________________
 ```
@@ -199,6 +207,7 @@ Bucket Name: ____________________________
 - [ ] **Error Document:** index.html
 
 **Website endpoint to save:**
+
 ```
 S3 Website URL: http://____________.s3-website-us-east-1.amazonaws.com
 ```
@@ -246,6 +255,7 @@ const REDIRECT_URI = "http://____________.s3-website-us-east-1.amazonaws.com/";
 ```
 
 **Update with your values:**
+
 - [ ] COGNITO_DOMAIN updated
 - [ ] CLIENT_ID updated
 - [ ] REDIRECT_URI updated
@@ -264,6 +274,7 @@ const AWS_CONFIG = {
 ```
 
 **Update with your values:**
+
 - [ ] userPoolId updated
 - [ ] clientId updated
 - [ ] apiEndpoint updated
@@ -293,24 +304,28 @@ const AWS_CONFIG = {
 After signing in, open browser console and test:
 
 - [ ] **Create Task (POST /tasks)**
+
   ```javascript
   // Copy test code from COMPLETE-SETUP-MANUAL.md
   // Expected: 201 Created response
   ```
 
 - [ ] **Get Tasks (GET /tasks)**
+
   ```javascript
   // Copy test code from COMPLETE-SETUP-MANUAL.md
   // Expected: 200 OK with tasks array
   ```
 
 - [ ] **Update Task (PUT /tasks/{id})**
+
   ```javascript
   // Copy test code from COMPLETE-SETUP-MANUAL.md
   // Expected: 200 OK with updated task
   ```
 
 - [ ] **Delete Task (DELETE /tasks/{id})**
+
   ```javascript
   // Copy test code from COMPLETE-SETUP-MANUAL.md
   // Expected: 200 OK with success message

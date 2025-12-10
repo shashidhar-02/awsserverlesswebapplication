@@ -35,6 +35,7 @@ aws dynamodb create-table --table-name TasksTable --attribute-definitions Attrib
 ### 2. Update Configuration (5 min)
 
 Edit these files:
+
 - `frontend/index.html` (lines 483-485)
 - `frontend/task-app.js` (lines 6-8)
 
@@ -54,7 +55,7 @@ Done! 🎉
 
 Before starting, ensure you have:
 
-- [ ] AWS Account (create at https://aws.amazon.com)
+- [ ] AWS Account (create at <https://aws.amazon.com>)
 - [ ] AWS CLI installed
 - [ ] Basic understanding of AWS Console
 - [ ] Text editor (VS Code recommended)
@@ -73,17 +74,20 @@ Before starting, ensure you have:
 Follow the manual sections in order:
 
 **Section 1: DynamoDB** (5 min)
+
 - Create `TasksTable` with `task_id` as partition key
 - Set to On-demand capacity
 - Note the ARN
 
 **Section 2: Cognito** (10 min)
+
 - Create User Pool: `TaskTrackerUserPool`
 - Create App Client: `TaskTrackerWebClient`
 - Configure Hosted UI with domain
 - Save: User Pool ID, Client ID, Domain
 
 **Section 3: Lambda Functions** (10 min)
+
 - Create IAM role: `TaskTrackerLambdaRole`
 - Create 4 Lambda functions:
   - CreateTask
@@ -94,6 +98,7 @@ Follow the manual sections in order:
 - Set environment variable: `TABLE_NAME=TasksTable`
 
 **Section 4: API Gateway** (10 min)
+
 - Create REST API: `TaskTrackerAPI`
 - Create Cognito Authorizer
 - Create resources:
@@ -104,6 +109,7 @@ Follow the manual sections in order:
 - Save: Invoke URL
 
 **Section 5: S3** (5 min)
+
 - Create bucket with unique name
 - Disable "Block all public access"
 - Enable static website hosting
@@ -129,6 +135,7 @@ Open **CONFIGURATION-CHECKLIST.md** and:
 ```
 
 The script will:
+
 - ✓ Check AWS CLI and credentials
 - ✓ Verify frontend files exist
 - ✓ Update configuration (if needed)
@@ -158,6 +165,7 @@ aws s3 sync . s3://YOUR-BUCKET-NAME/ --exclude "*.md" --exclude ".git/*"
 ## 🎯 What You'll Build
 
 ### Frontend Features
+
 - Clean, modern UI with gradient design
 - User authentication flow
 - Task management interface (tasks.html)
@@ -165,6 +173,7 @@ aws s3 sync . s3://YOUR-BUCKET-NAME/ --exclude "*.md" --exclude ".git/*"
 - Responsive design
 
 ### Backend Features
+
 - RESTful API with 4 endpoints
 - JWT-based authentication
 - User-specific task isolation
@@ -172,6 +181,7 @@ aws s3 sync . s3://YOUR-BUCKET-NAME/ --exclude "*.md" --exclude ".git/*"
 - Automatic scaling
 
 ### AWS Services Used
+
 - **S3** - Static website hosting
 - **Lambda** - Serverless compute (4 functions)
 - **API Gateway** - REST API layer
@@ -216,10 +226,10 @@ You'll need to collect these values during setup:
 |---------|-------|---------|---------------|
 | **Cognito** | User Pool ID | us-east-1_abc123XYZ | Cognito Console → User pools → General settings |
 | **Cognito** | App Client ID | 1a2b3c4d5e6f7g8h9i0j | Cognito Console → App integration → App clients |
-| **Cognito** | Domain | https://tasktracker-xxx.auth... | Cognito Console → App integration → Domain |
-| **API Gateway** | Invoke URL | https://abc123.execute-api... | API Gateway → Stages → prod |
+| **Cognito** | Domain | <https://tasktracker-xxx.auth>... | Cognito Console → App integration → Domain |
+| **API Gateway** | Invoke URL | <https://abc123.execute-api>... | API Gateway → Stages → prod |
 | **S3** | Bucket Name | taskfrontend2291 | S3 Console → Buckets |
-| **S3** | Website URL | http://taskfrontend2291.s3-website... | S3 → Properties → Static website hosting |
+| **S3** | Website URL | <http://taskfrontend2291.s3-website>... | S3 → Properties → Static website hosting |
 
 **Save these values in CONFIGURATION-CHECKLIST.md!**
 
@@ -285,12 +295,14 @@ fetch('https://YOUR-API-URL/prod/tasks', {
 ### Common Issues
 
 **Issue: CORS Error**
+
 ```
 Solution: Ensure CORS is enabled on ALL API Gateway methods
 Check: API Gateway → Resources → Each method → Enable CORS
 ```
 
 **Issue: 401 Unauthorized**
+
 ```
 Solution: Token expired or invalid
 Fix: Sign out and sign in again to get fresh token
@@ -298,6 +310,7 @@ Check: Authorization header includes "Bearer " prefix (if required)
 ```
 
 **Issue: 500 Internal Server Error**
+
 ```
 Solution: Check Lambda function logs
 Go to: CloudWatch → Log groups → /aws/lambda/[FunctionName]
@@ -305,6 +318,7 @@ Look for: Python errors, DynamoDB errors, permission issues
 ```
 
 **Issue: Cannot access S3 website**
+
 ```
 Solution: Check bucket policy and public access settings
 Fix: Ensure "Block all public access" is OFF
@@ -312,6 +326,7 @@ Fix: Ensure "Block all public access" is OFF
 ```
 
 **Issue: Redirect URI mismatch**
+
 ```
 Solution: Callback URLs must match exactly
 Fix: In Cognito App Client settings, ensure S3 URL matches exactly
@@ -325,6 +340,7 @@ For more troubleshooting, see **COMPLETE-SETUP-MANUAL.md** Section: Troubleshoot
 ## 💰 Cost Estimate
 
 ### AWS Free Tier (First 12 Months)
+
 - **Lambda:** 1M requests/month - FREE
 - **API Gateway:** 1M requests/month - FREE  
 - **DynamoDB:** 25GB storage, 25 read/write units - FREE
@@ -332,6 +348,7 @@ For more troubleshooting, see **COMPLETE-SETUP-MANUAL.md** Section: Troubleshoot
 - **Cognito:** 50,000 MAUs - FREE
 
 ### Beyond Free Tier (Estimated)
+
 For personal/demo use: **$1-5/month**
 
 For production with moderate traffic: **$10-50/month**
@@ -345,11 +362,13 @@ For production with moderate traffic: **$10-50/month**
 By completing this project, you'll gain hands-on experience with:
 
 ✅ **Serverless Architecture**
+
 - Event-driven design patterns
 - Stateless application design
 - Auto-scaling concepts
 
 ✅ **AWS Services**
+
 - S3 static website hosting
 - Lambda function development
 - API Gateway REST APIs
@@ -357,12 +376,14 @@ By completing this project, you'll gain hands-on experience with:
 - Cognito user authentication
 
 ✅ **Security**
+
 - JWT token authentication
 - User authorization
 - CORS configuration
 - IAM roles and policies
 
 ✅ **DevOps**
+
 - Infrastructure as code concepts
 - Deployment automation
 - CloudWatch monitoring
@@ -373,16 +394,19 @@ By completing this project, you'll gain hands-on experience with:
 ## 📚 Additional Resources
 
 ### Official AWS Documentation
+
 - [Lambda Developer Guide](https://docs.aws.amazon.com/lambda/)
 - [API Gateway Developer Guide](https://docs.aws.amazon.com/apigateway/)
 - [DynamoDB Developer Guide](https://docs.aws.amazon.com/dynamodb/)
 - [Cognito Developer Guide](https://docs.aws.amazon.com/cognito/)
 
 ### Tutorials
+
 - [AWS Serverless Workshop](https://webapp.serverlessworkshops.io/)
 - [AWS Getting Started](https://aws.amazon.com/getting-started/)
 
 ### Community
+
 - [AWS Forums](https://forums.aws.amazon.com/)
 - [r/aws subreddit](https://reddit.com/r/aws)
 - [Stack Overflow - AWS](https://stackoverflow.com/questions/tagged/amazon-web-services)
@@ -394,18 +418,21 @@ By completing this project, you'll gain hands-on experience with:
 Once your app is working, consider these enhancements:
 
 ### Level 1: Improvements
+
 - [ ] Add task categories/tags
 - [ ] Implement task search
 - [ ] Add due date reminders
 - [ ] Create data export feature
 
 ### Level 2: Advanced Features
+
 - [ ] Add file attachments (using S3)
 - [ ] Implement task sharing between users
 - [ ] Add email notifications (using SES)
 - [ ] Create task analytics dashboard
 
 ### Level 3: Production Ready
+
 - [ ] Set up custom domain with Route 53
 - [ ] Add CloudFront CDN for HTTPS
 - [ ] Implement CI/CD with CodePipeline
@@ -466,11 +493,12 @@ Before considering your setup complete:
 
 ---
 
-## 🎉 Congratulations!
+## 🎉 Congratulations
 
 You've successfully built and deployed a production-ready serverless application on AWS!
 
 **What you've achieved:**
+
 - ✅ Built a full-stack application without managing servers
 - ✅ Integrated 5 different AWS services
 - ✅ Implemented secure user authentication
@@ -478,6 +506,7 @@ You've successfully built and deployed a production-ready serverless application
 - ✅ Deployed to production
 
 **Share your success:**
+
 - Add this project to your portfolio
 - Share on LinkedIn
 - Contribute enhancements
