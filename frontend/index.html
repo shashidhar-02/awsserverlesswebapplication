@@ -1,370 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Task Tracker</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Serverless Task Tracker</title>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .header {
-            background: white;
-            border-radius: 15px;
-            padding: 25px 30px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            text-align: center;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 2em;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 1em;
-        }
-
-        .task-input-section {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .task-form {
-            display: flex;
-            gap: 10px;
-        }
-
-        #taskInput {
-            flex: 1;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1em;
-            transition: border-color 0.2s;
-        }
-
-        #taskInput:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        #addTaskBtn {
-            padding: 15px 30px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 1em;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        #addTaskBtn:hover {
-            transform: translateY(-2px);
-        }
-
-        .tasks-container {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .tasks-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .tasks-header h2 {
-            color: #333;
-            font-size: 1.5em;
-        }
-
-        .task-count {
-            background: #667eea;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-
-        #tasksList {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .task-item {
-            background: #f8f9fa;
-            padding: 15px 20px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: all 0.2s;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .task-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .task-content {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .task-checkbox {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .task-text {
-            color: #333;
-            font-size: 1em;
-            word-break: break-word;
-        }
-
-        .task-text.completed {
-            text-decoration: line-through;
-            color: #999;
-        }
-
-        .delete-btn {
-            padding: 8px 20px;
-            background: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-
-        .delete-btn:hover {
-            background: #c82333;
-        }
-
-        .empty-message {
-            text-align: center;
-            color: #999;
-            padding: 40px 20px;
-            font-size: 1.1em;
-        }
-
-        .empty-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 600px) {
-            .task-form {
-                flex-direction: column;
-            }
-
-            #addTaskBtn {
-                width: 100%;
-            }
-
-            .task-item {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-
-            .delete-btn {
-                width: 100%;
-            }
-        }
-    </style>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  min-height: 100vh;
+  margin: 0;
+  padding: 20px;
+}
+.container {
+  max-width: 600px;
+  margin: auto;
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+}
+h1 {
+  text-align: center;
+}
+input {
+  width: 75%;
+  padding: 10px;
+}
+button {
+  padding: 10px;
+  cursor: pointer;
+}
+.task {
+  background: #f1f1f1;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+.logout {
+  background: #dc3545;
+  color: white;
+  border: none;
+  float: right;
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1>📝 Task Tracker</h1>
-            <p>Simple task management</p>
-        </div>
+<div class="container">
+  <button class="logout" onclick="logout()">Logout</button>
+  <h1>📝 Task Tracker</h1>
 
-        <!-- Add Task Section -->
-        <div class="task-input-section">
-            <div class="task-form">
-                <input type="text" id="taskInput" placeholder="What do you need to do?" />
-                <button id="addTaskBtn">➕ Add Task</button>
-            </div>
-        </div>
+  <div>
+    <input id="taskInput" placeholder="Enter new task"/>
+    <button onclick="addTask()">Add Task</button>
+  </div>
 
-        <!-- Tasks List -->
-        <div class="tasks-container">
-            <div class="tasks-header">
-                <h2>My Tasks</h2>
-                <span class="task-count" id="taskCount">0 tasks</span>
-            </div>
-            <div id="tasksList"></div>
-            <div id="emptyMessage" class="empty-message">
-                <div class="empty-icon">📋</div>
-                <p>No tasks yet. Add your first task above!</p>
-            </div>
-        </div>
-    </div>
+  <div id="tasks"></div>
+</div>
 
-    <script>
-        // Tasks array
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+<script>
+/* ================= CONFIG ================= */
+const COGNITO_DOMAIN = "https://us-east-1wtmddhyns.auth.us-east-1.amazoncognito.com";
+const CLIENT_ID = "6bl74m8j3hfb80j6f9q61gp2m7";
+const REDIRECT_URI = "https://forntendtask3345.s3.us-east-1.amazonaws.com/index.html";
 
-        // Add task button
-        document.getElementById('addTaskBtn').addEventListener('click', addTask);
+const GET_API = "https://kflgro3072.execute-api.us-east-1.amazonaws.com/prod/get-tasks";
+const POST_API = "https://yfsh5mb20i.execute-api.us-east-1.amazonaws.com/prod/create-task";
 
-        // Add task on Enter key
-        document.getElementById('taskInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                addTask();
-            }
-        });
+/* ================= AUTH ================= */
+function getCode() {
+  return new URLSearchParams(window.location.search).get("code");
+}
 
-        // Add task function
-        function addTask() {
-            const taskInput = document.getElementById('taskInput');
-            const taskText = taskInput.value.trim();
-            
-            if (taskText === '') {
-                alert('Please enter a task!');
-                return;
-            }
+async function exchangeCode(code) {
+  const body = new URLSearchParams({
+    grant_type: "authorization_code",
+    client_id: CLIENT_ID,
+    code: code,
+    redirect_uri: REDIRECT_URI
+  });
 
-            const task = {
-                id: Date.now(),
-                text: taskText,
-                completed: false,
-                createdAt: new Date().toISOString()
-            };
+  const res = await fetch(`${COGNITO_DOMAIN}/oauth2/token`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: body.toString()
+  });
 
-            tasks.push(task);
-            saveTasks();
-            renderTasks();
-            taskInput.value = '';
-            taskInput.focus();
-        }
+  const data = await res.json();
+  if (data.id_token) {
+    localStorage.setItem("jwt", data.id_token);
+    window.history.replaceState({}, "", REDIRECT_URI);
+  } else {
+    alert("Authentication failed");
+  }
+}
 
-        // Delete task
-        function deleteTask(id) {
-            if (confirm('Delete this task?')) {
-                tasks = tasks.filter(task => task.id !== id);
-                saveTasks();
-                renderTasks();
-            }
-        }
+async function ensureLogin() {
+  const jwt = localStorage.getItem("jwt");
+  const code = getCode();
 
-        // Toggle task completion
-        function toggleTask(id) {
-            const task = tasks.find(t => t.id === id);
-            if (task) {
-                task.completed = !task.completed;
-                saveTasks();
-                renderTasks();
-            }
-        }
+  if (!jwt && code) await exchangeCode(code);
 
-        // Save tasks to localStorage
-        function saveTasks() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
+  if (!localStorage.getItem("jwt")) {
+    window.location.href =
+      `${COGNITO_DOMAIN}/login?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}`;
+  }
+}
 
-        // Render tasks
-        function renderTasks() {
-            const tasksList = document.getElementById('tasksList');
-            const emptyMessage = document.getElementById('emptyMessage');
-            const taskCount = document.getElementById('taskCount');
+/* ================= API ================= */
+async function loadTasks() {
+  const res = await fetch(GET_API, {
+    headers: { Authorization: localStorage.getItem("jwt") }
+  });
+  const data = await res.json();
 
-            tasksList.innerHTML = '';
+  const div = document.getElementById("tasks");
+  div.innerHTML = "";
+  data.forEach(t => {
+    const d = document.createElement("div");
+    d.className = "task";
+    d.textContent = t.task || t.text;
+    div.appendChild(d);
+  });
+}
 
-            // Update count
-            const activeTasks = tasks.filter(t => !t.completed).length;
-            taskCount.textContent = `${activeTasks} active / ${tasks.length} total`;
+async function addTask() {
+  const input = document.getElementById("taskInput");
+  if (!input.value.trim()) return alert("Enter task");
 
-            // Show/hide empty message
-            if (tasks.length === 0) {
-                emptyMessage.style.display = 'block';
-                return;
-            } else {
-                emptyMessage.style.display = 'none';
-            }
+  await fetch(POST_API, {
+    method: "POST",
+    headers: {
+      "Authorization": localStorage.getItem("jwt"),
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ task: input.value })
+  });
 
-            // Render each task
-            tasks.forEach(task => {
-                const taskDiv = document.createElement('div');
-                taskDiv.className = 'task-item';
-                
-                taskDiv.innerHTML = `
-                    <div class="task-content">
-                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
-                               onchange="toggleTask(${task.id})">
-                        <span class="task-text ${task.completed ? 'completed' : ''}">${escapeHtml(task.text)}</span>
-                    </div>
-                    <button class="delete-btn" onclick="deleteTask(${task.id})">🗑️ Delete</button>
-                `;
-                
-                tasksList.appendChild(taskDiv);
-            });
-        }
+  input.value = "";
+  loadTasks();
+}
 
-        // Escape HTML
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+/* ================= LOGOUT ================= */
+function logout() {
+  localStorage.removeItem("jwt");
+  window.location.href = REDIRECT_URI;
+}
 
-        // Make functions global
-        window.deleteTask = deleteTask;
-        window.toggleTask = toggleTask;
-
-        // Load tasks on page load
-        window.onload = () => {
-            renderTasks();
-            document.getElementById('taskInput').focus();
-        };
-    </script>
+/* ================= INIT ================= */
+window.onload = async () => {
+  await ensureLogin();
+  loadTasks();
+};
+</script>
 </body>
 </html>
