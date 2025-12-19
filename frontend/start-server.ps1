@@ -1,7 +1,11 @@
 # Simple HTTP Server for Task Tracker Frontend
 # This allows you to preview the frontend locally before deploying to AWS
 
-$port = 8000
+param(
+    [int]$Port = 8000,
+    [string]$BindAddress = 'http://localhost'
+)
+
 $path = Get-Location
 
 Write-Host "=====================================" -ForegroundColor Cyan
@@ -9,7 +13,7 @@ Write-Host "  Task Tracker - Local Preview" -ForegroundColor Cyan
 Write-Host "=====================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Starting web server..." -ForegroundColor Green
-Write-Host "URL: http://localhost:$port" -ForegroundColor Yellow
+Write-Host "URL: ${BindAddress}:${Port}" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "IMPORTANT NOTES:" -ForegroundColor Red
 Write-Host "1. The app will show login page but won't work fully until deployed to AWS" -ForegroundColor White
@@ -22,8 +26,13 @@ Write-Host ""
 
 # Create HTTP listener
 $listener = New-Object System.Net.HttpListener
-$listener.Prefixes.Add("http://localhost:$port/")
-$listener.Start()
+try {
+    $listener.Prefixes.Add("${BindAddress}:${Port}/")
+    $listener.Start()
+} catch {
+    Write-Host "Port $Port is in use. Try a different port." -ForegroundColor Red
+    throw
+}
 
 Write-Host "Server is running! Opening browser..." -ForegroundColor Green
 Start-Sleep -Seconds 1
@@ -77,6 +86,6 @@ try {
     }
 }
 finally {
-    $listener.Stop()
+    if ($listener -and $listener.IsListening) { $listener.Stop() }
     Write-Host "`nServer stopped." -ForegroundColor Yellow
 }

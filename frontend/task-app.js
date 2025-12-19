@@ -1,12 +1,15 @@
 // ===================================
 // Configuration
 // ===================================
-// TODO: Update these values after completing AWS setup (see COMPLETE-SETUP-MANUAL.md)
+// TODO: Update these values after completing AWS setup
+// Fill in your actual Cognito + API Gateway configuration
 const AWS_CONFIG = {
     region: 'us-east-1',
-    userPoolId: 'YOUR_USER_POOL_ID',  // Example: us-east-1_XXXXXXXXX
-    clientId: 'YOUR_APP_CLIENT_ID',    // Example: 7kg28dfrbs9pjukg7n2n6230vm
-    apiEndpoint: 'YOUR_API_GATEWAY_URL' // Example: https://abcd1234.execute-api.us-east-1.amazonaws.com/prod
+    userPoolId: 'us-east-1_WtMddhynS',
+    clientId: '52sf264k6sismi0kr00c0irhe6',
+    // Provided endpoints
+    createTaskUrl: 'https://yfsh5mb20i.execute-api.us-east-1.amazonaws.com/prod/create-task',
+    getTasksUrl: 'https://kflgro3072.execute-api.us-east-1.amazonaws.com/prod/get-tasks'
 };
 
 // ===================================
@@ -391,7 +394,9 @@ function displayTasks() {
 
 // Create Task Card HTML
 function createTaskCard(task) {
-    const isCompleted = task.status === 'completed';
+    const statusValue = (task.status || '').toLowerCase();
+    const isCompleted = statusValue === 'completed';
+    const priorityValue = (task.priority || 'medium').toLowerCase();
     
     return `
         <div class="task-card ${isCompleted ? 'completed' : ''}" data-task-id="${task.task_id}">
@@ -399,11 +404,11 @@ function createTaskCard(task) {
                 <div class="task-left">
                     <div class="task-name">${escapeHtml(task.task_name)}</div>
                     <div class="task-meta">
-                        <span class="priority-badge priority-${task.priority}">
-                            ${task.priority.toUpperCase()}
+                        <span class="priority-badge priority-${priorityValue}">
+                            ${priorityValue.toUpperCase()}
                         </span>
-                        <span class="status-badge status-${task.status}">
-                            ${task.status === 'completed' ? '✓ Completed' : '○ Pending'}
+                        <span class="status-badge status-${statusValue}">
+                            ${isCompleted ? '✓ Completed' : '○ Pending'}
                         </span>
                         <span>📅 ${formatDate(task.deadline)}</span>
                         <span>🕒 ${formatDate(task.created_at)}</span>
@@ -429,7 +434,8 @@ function escapeHtml(text) {
 // Complete Task
 async function completeTask(taskId) {
     try {
-        await updateTask(taskId, { status: 'completed' });
+        // Backend expects 'Completed' (capitalized)
+        await updateTask(taskId, { status: 'Completed' });
         showMessage(elements.taskMessage, 'Task completed!', 'success');
         loadTasks();
     } catch (error) {
@@ -528,70 +534,106 @@ document.getElementById('refresh-tasks')?.addEventListener('click', () => {
 // NOTE: Replace these with actual API calls to your Lambda functions via API Gateway
 
 async function getTasks() {
-    // Mock implementation - in production, call your API Gateway endpoint
-    // Example:
-    // const response = await fetch(`${AWS_CONFIG.apiEndpoint}/tasks`, {
-    //     headers: { 'Authorization': idToken }
-    // });
-    // return await response.json();
-    
-    const tasksJson = localStorage.getItem('tasks_' + cognitoUser.getUsername()) || '[]';
-    return JSON.parse(tasksJson);
+    // Fetch tasks from secured API Gateway (Cognito Authorizer)
+    const response = await fetch(AWS_CONFIG.getTasksUrl, {
+        method: 'GET',
+        headers: {
+            'Authorization': idToken
+        }
+    });
+
+    const contentType = response.headers.get('content-type');
+    let data;
+    if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+    } else {
+        const text = await response.text();
+        data = { message: text };
+    }
+
+    if (!response.ok) {
+        throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    // Lambda returns { tasks: [...], count: N }
+    return data.tasks || [];
 }
 
 async function createTask(taskData) {
-    // Mock implementation - in production, call your API Gateway endpoint
-    // Example:
-    // const response = await fetch(`${AWS_CONFIG.apiEndpoint}/tasks`, {
-    //     method: 'POST',
-    //     headers: {
-    //         'Authorization': idToken,
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify(taskData)
-    // });
-    // return await response.json();
-    
-    const tasks = await getTasks();
-    tasks.push(taskData);
-    localStorage.setItem('tasks_' + cognitoUser.getUsername(), JSON.stringify(tasks));
-    return taskData;
+    // Create task via secured API Gateway (Cognito Authorizer)
+    // Backend expects: { task_name, description? }
+    const body = {
+        task_name: taskData.task_name,
+        description: taskData.description || ''
+    };
+
+    const response = await fetch(AWS_CONFIG.createTaskUrl, {
+        method: 'POST',
+        headers: {
+            'Authorization': idToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+    });
+
+    const contentType = response.headers.get('content-type');
+    let data;
+    if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+    } else {
+        const text = await response.text();
+        data = { message: text };
+    }
+
+    if (!response.ok) {
+        throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    // Returns { message, task }
+    return data.task;
 }
 
 async function updateTask(taskId, updates) {
-    // Mock implementation - in production, call your API Gateway endpoint
-    // Example:
-    // const response = await fetch(`${AWS_CONFIG.apiEndpoint}/tasks/${taskId}`, {
-    //     method: 'PUT',
-    //     headers: {
-    //         'Authorization': idToken,
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify(updates)
-    // });
-    // return await response.json();
-    
-    const tasks = await getTasks();
-    const taskIndex = tasks.findIndex(t => t.task_id === taskId);
-    if (taskIndex !== -1) {
-        tasks[taskIndex] = { ...tasks[taskIndex], ...updates };
-        localStorage.setItem('tasks_' + cognitoUser.getUsername(), JSON.stringify(tasks));
+    // Update task via secured API Gateway (Cognito Authorizer)
+    const response = await fetch(`${AWS_CONFIG.apiEndpoint}/tasks/${taskId}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': idToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updates)
+    });
+
+    const contentType = response.headers.get('content-type');
+    let data;
+    if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+    } else {
+        const text = await response.text();
+        data = { message: text };
     }
-    return tasks[taskIndex];
+
+    if (!response.ok) {
+        throw new Error(data.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    // Returns { message, task }
+    return data.task;
 }
 
 async function deleteTaskById(taskId) {
-    // Mock implementation - in production, call your API Gateway endpoint
-    // Example:
-    // const response = await fetch(`${AWS_CONFIG.apiEndpoint}/tasks/${taskId}`, {
-    //     method: 'DELETE',
-    //     headers: { 'Authorization': idToken }
-    // });
-    // return await response.json();
-    
-    const tasks = await getTasks();
-    const filteredTasks = tasks.filter(t => t.task_id !== taskId);
-    localStorage.setItem('tasks_' + cognitoUser.getUsername(), JSON.stringify(filteredTasks));
+    // Delete task via secured API Gateway (Cognito Authorizer)
+    const response = await fetch(`${AWS_CONFIG.apiEndpoint}/tasks/${taskId}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': idToken
+        }
+    });
+
+    if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `HTTP ${response.status}: ${response.statusText}`);
+    }
 }
 
 // ===================================

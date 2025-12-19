@@ -1,158 +1,187 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Serverless Task Tracker</title>
-
-<style>
-body {
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  min-height: 100vh;
-  margin: 0;
-  padding: 20px;
-}
-.container {
-  max-width: 600px;
-  margin: auto;
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-}
-h1 {
-  text-align: center;
-}
-input {
-  width: 75%;
-  padding: 10px;
-}
-button {
-  padding: 10px;
-  cursor: pointer;
-}
-.task {
-  background: #f1f1f1;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 5px;
-}
-.logout {
-  background: #dc3545;
-  color: white;
-  border: none;
-  float: right;
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Serverless Task App</title>
+  <style>
+    :root { --primary:#667eea; --bg:#f5f7fb; --card:#ffffff; --border:#e5e7eb; }
+    body { font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; background: var(--bg); }
+    .container { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: 0 8px 20px rgba(0,0,0,.06); }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    h1 { margin:0 0 12px; }
+    h2 { margin:16px 0 8px; }
+    label { display:block; font-size: 13px; color:#555; margin-bottom:6px; }
+    input, textarea { font-size: 15px; border:1px solid var(--border); border-radius:8px; padding:10px 12px; width:100%; }
+    textarea { resize: vertical; min-height: 80px; }
+    .btn { background: var(--primary); color:#fff; border:none; border-radius:8px; padding:10px 14px; font-weight:600; cursor:pointer; }
+    .btn.secondary { background:#e5e7eb; color:#111; }
+    .btn:disabled { opacity:.7; cursor:not-allowed; }
+    .actions { display:flex; gap:10px; align-items:center; }
+    .table { width:100%; border-collapse: collapse; margin-top: 10px; }
+    .table th, .table td { border:1px solid var(--border); padding:8px 10px; text-align:left; font-size: 14px; }
+    .table th { background:#f9fafb; }
+    .muted { color:#666; font-size: 13px; }
+    .json { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background:#0f172a; color:#e2e8f0; padding:10px; border-radius:8px; overflow:auto; font-size:13px; }
+    .success { color:#0ea5e9; }
+    .error { color:#ef4444; }
+  </style>
 </head>
 
 <body>
-<div class="container">
-  <button class="logout" onclick="logout()">Logout</button>
-  <h1>📝 Task Tracker</h1>
 
-  <div>
-    <input id="taskInput" placeholder="Enter new task"/>
-    <button onclick="addTask()">Add Task</button>
+  <div class="container">
+    <div class="card">
+      <h1>📝 Serverless Task App</h1>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <h2>Create Task</h2>
+      <div class="row">
+        <div style="flex:1 1 260px;">
+          <label for="taskName">Task Name *</label>
+          <input id="taskName" placeholder="e.g., Write project summary" />
+        </div>
+        <div style="flex:1 1 260px;">
+          <label for="taskDesc">Description</label>
+          <textarea id="taskDesc" placeholder="Optional details..."></textarea>
+        </div>
+      </div>
+      <div class="actions" style="margin-top:10px;">
+        <button class="btn" id="createBtn">Create Task</button>
+        <span id="createStatus" class="muted"></span>
+      </div>
+      <div id="createResponse" class="json" style="margin-top:10px; display:none;"></div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="actions" style="justify-content:space-between;">
+        <h2 style="margin:0;">Tasks</h2>
+        <div class="actions">
+          <button class="btn secondary" id="clearBtn">Clear Table</button>
+          <button class="btn" id="getBtn">Get Tasks</button>
+        </div>
+      </div>
+      <table class="table" id="taskTable">
+        <thead>
+          <tr>
+            <th>Task ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Created At</th>
+          </tr>
+        </thead>
+        <tbody id="taskTbody"></tbody>
+      </table>
+      <div id="getResponse" class="json" style="margin-top:10px; display:none;"></div>
+    </div>
   </div>
 
-  <div id="tasks"></div>
-</div>
+  <script>
+    const CREATE_TASK_URL = 'https://yfsh5mb20i.execute-api.us-east-1.amazonaws.com/prod/create-task';
+    const GET_TASKS_URL   = 'https://kflgro3072.execute-api.us-east-1.amazonaws.com/prod/get-tasks';
 
-<script>
-/* ================= CONFIG ================= */
-const COGNITO_DOMAIN = "https://us-east-1wtmddhyns.auth.us-east-1.amazoncognito.com";
-const CLIENT_ID = "6bl74m8j3hfb80j6f9q61gp2m7";
-const REDIRECT_URI = "https://forntendtask3345.s3.us-east-1.amazonaws.com/index.html";
+    const el = {
+      name: document.getElementById('taskName'),
+      desc: document.getElementById('taskDesc'),
+      createBtn: document.getElementById('createBtn'),
+      createStatus: document.getElementById('createStatus'),
+      createResponse: document.getElementById('createResponse'),
+      getBtn: document.getElementById('getBtn'),
+      clearBtn: document.getElementById('clearBtn'),
+      tbody: document.getElementById('taskTbody'),
+      getResponse: document.getElementById('getResponse')
+    };
 
-const GET_API = "https://kflgro3072.execute-api.us-east-1.amazonaws.com/prod/get-tasks";
-const POST_API = "https://yfsh5mb20i.execute-api.us-east-1.amazonaws.com/prod/create-task";
+    el.createBtn.addEventListener('click', createTask);
+    el.getBtn.addEventListener('click', getTasks);
+    el.clearBtn.addEventListener('click', () => { el.tbody.innerHTML = ''; el.getResponse.style.display = 'none'; });
 
-/* ================= AUTH ================= */
-function getCode() {
-  return new URLSearchParams(window.location.search).get("code");
-}
+    async function createTask() {
+      const name = el.name.value.trim();
+      const desc = el.desc.value.trim();
+      if (!name) { el.createStatus.textContent = 'Please enter a task name'; el.createStatus.className='muted error'; return; }
+      el.createStatus.textContent = 'Submitting...'; el.createStatus.className='muted'; el.createBtn.disabled = true;
+      el.createResponse.style.display = 'none';
 
-async function exchangeCode(code) {
-  const body = new URLSearchParams({
-    grant_type: "authorization_code",
-    client_id: CLIENT_ID,
-    code: code,
-    redirect_uri: REDIRECT_URI
-  });
+      try {
+        const res = await fetch(CREATE_TASK_URL, {
+          method: 'POST',
+          // Omit Content-Type to reduce CORS preflight; Lambda will still parse JSON
+          headers: { 'Accept': 'application/json' },
+          body: JSON.stringify({ task_name: name, title: name, description: desc })
+        });
 
-  const res = await fetch(`${COGNITO_DOMAIN}/oauth2/token`, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: body.toString()
-  });
+        const contentType = res.headers.get('content-type');
+        let data;
+        if (contentType && contentType.includes('application/json')) { data = await res.json(); }
+        else { const text = await res.text(); throw new Error(text || `HTTP ${res.status}`); }
 
-  const data = await res.json();
-  if (data.id_token) {
-    localStorage.setItem("jwt", data.id_token);
-    window.history.replaceState({}, "", REDIRECT_URI);
-  } else {
-    alert("Authentication failed");
-  }
-}
+        if (!res.ok) { throw new Error(data.message || `HTTP ${res.status}`); }
 
-async function ensureLogin() {
-  const jwt = localStorage.getItem("jwt");
-  const code = getCode();
+        el.createStatus.textContent = 'Task created ✔'; el.createStatus.className='muted success';
+        el.name.value = ''; el.desc.value = '';
+        el.createResponse.textContent = JSON.stringify(data, null, 2);
+        el.createResponse.style.display = 'block';
+        await getTasks();
+      } catch (err) {
+        console.error('Create task error:', err);
+        el.createStatus.textContent = 'Failed: ' + err.message; el.createStatus.className='muted error';
+      } finally {
+        el.createBtn.disabled = false;
+      }
+    }
 
-  if (!jwt && code) await exchangeCode(code);
+    async function getTasks() {
+      el.tbody.innerHTML = ''; el.getResponse.style.display = 'none'; el.getBtn.disabled = true;
+      try {
+        const res = await fetch(GET_TASKS_URL, { headers: { 'Accept': 'application/json' } });
+        const contentType = res.headers.get('content-type');
+        let data;
+        if (contentType && contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          const text = await res.text();
+          try {
+            data = JSON.parse(text);
+          } catch (e) {
+            throw new Error(text || `HTTP ${res.status}`);
+          }
+        }
 
-  if (!localStorage.getItem("jwt")) {
-    window.location.href =
-      `${COGNITO_DOMAIN}/login?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}`;
-  }
-}
+        const tasks = Array.isArray(data) ? data : (data.tasks || []);
+        if (tasks.length === 0) { el.tbody.innerHTML = '<tr><td colspan="5">No tasks found.</td></tr>'; }
+        else {
+          tasks.forEach(t => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${escapeHtml(t.task_id || '')}</td>
+              <td>${escapeHtml(t.task_name || t.title || t.task || '')}</td>
+              <td>${escapeHtml(t.description || '')}</td>
+              <td>${escapeHtml(t.status || '')}</td>
+              <td>${escapeHtml(t.created_at || '')}</td>
+            `;
+            el.tbody.appendChild(tr);
+          });
+        }
+        el.getResponse.textContent = JSON.stringify(data, null, 2);
+        el.getResponse.style.display = 'block';
+      } catch (err) {
+        console.error('Get tasks error:', err);
+        el.tbody.innerHTML = `<tr><td colspan="5" class="error">Failed to get tasks: ${escapeHtml(err.message)}</td></tr>`;
+      } finally {
+        el.getBtn.disabled = false;
+      }
+    }
 
-/* ================= API ================= */
-async function loadTasks() {
-  const res = await fetch(GET_API, {
-    headers: { Authorization: localStorage.getItem("jwt") }
-  });
-  const data = await res.json();
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text ?? '';
+      return div.innerHTML;
+    }
+  </script>
 
-  const div = document.getElementById("tasks");
-  div.innerHTML = "";
-  data.forEach(t => {
-    const d = document.createElement("div");
-    d.className = "task";
-    d.textContent = t.task || t.text;
-    div.appendChild(d);
-  });
-}
-
-async function addTask() {
-  const input = document.getElementById("taskInput");
-  if (!input.value.trim()) return alert("Enter task");
-
-  await fetch(POST_API, {
-    method: "POST",
-    headers: {
-      "Authorization": localStorage.getItem("jwt"),
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({ task: input.value })
-  });
-
-  input.value = "";
-  loadTasks();
-}
-
-/* ================= LOGOUT ================= */
-function logout() {
-  localStorage.removeItem("jwt");
-  window.location.href = REDIRECT_URI;
-}
-
-/* ================= INIT ================= */
-window.onload = async () => {
-  await ensureLogin();
-  loadTasks();
-};
-</script>
 </body>
 </html>
