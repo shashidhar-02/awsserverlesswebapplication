@@ -88,8 +88,8 @@ Deletes a task from DynamoDB by task ID.
 ## AWS Services Configuration
 
 ### Amazon Cognito
-- **User Pool**: `us-east-1_WtMddhynS`
-- **App Client**: `52sf264k6sismi0kr00c0irhe6`
+- **User Pool**:`
+- **App Client**: ``
 - Provides authentication and JWT tokens for API authorization
 
 ### API Gateway
